@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
 
-from .models import Device
+from .models import Device, Data
 
 # Create your views here.
 
@@ -43,8 +43,6 @@ def getDeviceIp(request):
         deviceIp = request.POST["deviceIp"]
         apiToken = request.POST["apiToken"]
 
-        print(deviceIp, deviceId)
-
     if Device.objects.all().filter(id=deviceId).exists():
         if Device.objects.get(id=deviceId).api_token == apiToken:
             if deviceId and deviceIp:
@@ -59,3 +57,35 @@ def getDeviceIp(request):
             return Response({'message': 'api token does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({'message': 'device does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+def getDeviceData(request):
+    if request.method == "POST":
+        deviceId = request.POST["deviceId"]
+        apiToken = request.POST["apiToken"]
+        volume = request.POST["volume"]
+
+    if Device.objects.all().filter(id=deviceId).exists():
+        if Device.objects.get(id=deviceId).api_token == apiToken:
+            if deviceId and volume:
+                device = Device.objects.get(id=str(deviceId))
+                total = Data.objects.all().filter(
+                    device=str(deviceId)).order_by('id').reverse()
+
+                if (total):
+                    saveData = Data(device=device,
+                                    last_collection=float(volume), total=(float(total[0].total) + float(volume)))
+                    saveData.save()
+                else:
+                    saveData = Data(device=device,
+                                    last_collection=float(volume), total=float(volume))
+                    saveData.save()
+
+                return Response({'message': 'data received.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        return Response({'message': 'device does not exist.'}, status=status.HTTP_404_NOT_FOUND)

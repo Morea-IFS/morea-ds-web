@@ -20,4 +20,5 @@ from . import views
 urlpatterns = [
     path('api/get-device-ip', views.getDeviceIp, name='Receive IP'),
     path('api/identify-device', views.identifyDevice, name='Identify Device'),
+    path('api/get-device-data', views.getDeviceData, name='Receive Data'),
 ]

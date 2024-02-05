@@ -25,4 +25,16 @@ class Device(models.Model):
         max_length=255, null=True, blank=True, unique=True)
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        else:
+            return "Unnamed"
+
+
+class Data(models.Model):
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, null=True, blank=True)
+    last_collection = models.FloatField(
+        null=True, blank=True)  # Litros/Hora no último minuto
+    total = models.FloatField(default=0)  # Listros totais
+    collect_date = models.DateTimeField(auto_now_add=True)  # Data de coleta
