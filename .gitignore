@@ -1,0 +1,9 @@
+app/__pycache__/
+app/migrations/__pycache__/
+
+morea_ds/__pycache__/
+
+db.sqlite3
+
+env/
+dev.py
