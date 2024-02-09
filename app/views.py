@@ -14,6 +14,18 @@ from .models import Device, Data
 def index(request):
     return render(request, 'home.html')
 
+
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+
+def members(request):
+    return render(request, 'members.html')
+
+
+def news(request):
+    return render(request, 'news.html')
+
 # API
 
 

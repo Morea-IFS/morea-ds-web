@@ -34,9 +34,9 @@
       {% comment %} Menu for desktop {% endcomment %}
       <div class="header__divOptionsMenuDesktop">
         <a href="{% url 'Home' %}" class="header__options">Início</a>
-        <a href="{% url 'Home' %}" class="header__options">Dashboard</a>
-        <a href="{% url 'Home' %}" class="header__options">Novidades</a>
-        <a href="{% url 'Home' %}" class="header__options">Membros</a>
+        <a href="{% url 'Dashboard' %}" class="header__options">Dashboard</a>
+        <a href="{% url 'Members' %}" class="header__options">Novidades</a>
+        <a href="{% url 'News' %}" class="header__options">Membros</a>
         
       </div> 
       {% comment %} Menu for mobile {% endcomment %}
@@ -53,9 +53,9 @@
       <input type="checkbox" name="header__chekboxMenuMobile" id="header__chekboxMenuMobile">
       <div class="header__divOptionsMenuMobile">
         <a href="{% url 'Home' %}" class="header__options">Início</a>
-        <a href="{% url 'Home' %}" class="header__options">Dashboard</a>
-        <a href="{% url 'Home' %}" class="header__options">Novidades</a>
-        <a href="{% url 'Home' %}" class="header__options">Membros</a>
+        <a href="{% url 'Dashboard' %}" class="header__options">Dashboard</a>
+        <a href="{% url 'Members' %}" class="header__options">Novidades</a>
+        <a href="{% url 'News' %}" class="header__options">Membros</a>
         
       </div>
     </div>
