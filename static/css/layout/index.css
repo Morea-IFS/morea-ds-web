@@ -1,0 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	font-family: "Inter", sans-serif;
+}
+
+:root {
+	--background-graphics: #d9d9d9;
+	--background-button: #ebecf0;
+	--background-containerAlert: #ca3521;
+	--background-abnormalConsumption: #e2b203;
+	--color-main: #ffffff;
+	--color-main50: #ffffff80;
+	--color-blue: #0b98e3;
+	--color-white25: #091e420f;
+	--color-textDefault: #172b4d;
+	--color-textBlack: #091529;
+	--color-black: #1e1e20;
+	--border-trasparent: #172b4d28;
+	--border-trasparent2: #ffffff51;
+	--linear-webkit-blue-pink: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+	--linear-blue-pink: linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+	--linear-bg-image-home: linear-gradient(-45deg, #0d6bfa 50%, #ef7201 50%);
+	--height-header: 50px;
+	--height-footer: 70px;
+}

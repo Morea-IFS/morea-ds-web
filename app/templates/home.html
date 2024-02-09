@@ -1,0 +1,125 @@
+{% extends 'layout.html' %} 
+
+{% load static %}
+
+{% block title %}Morea - DS | Home{% endblock %}
+
+{% block stylesCustom %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+  
+{% block content %}
+  <div class="home">
+    <div class="sectionApresentation">
+      <video class="videoHomeApresentation" autoplay muted loop>
+        <source src="{% static 'assets/video/home.mp4' %}" type="video/mp4">
+        <source src="{% static 'assets/video/home.avi' %}" type="video/avi">
+        <source src="{% static 'assets/video/home.webm' %}" type="video/webm">
+      </video>
+      <div class="textsApresentation">
+        <h1>Seja Bem-Vindo ao <span>MOREA - DS!</span></h1>
+        <p>O projeto de pesquisa que usa o melhor que a tecnologia têm a oferecer</p>
+        <button class="buttonMore">Saiba Mais</button>
+      </div>
+      <div class="containerImageApresentation">
+        <span class="bg-logo"></span>
+        <img class="imageApresentation" src="{% static 'assets/images/logo-morea-ds-noname.png' %}" alt="Image apresentation">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="containerMinAboutMorea">
+      <div>
+        <div>
+            <h1 class="textWhatMorea">O Que é o <span>MOREA - DS?</span></h1>
+            <div class="divTextOne">
+              <p>O <span>Morea - Desenvolvimento Sustentável</span> aborda a escassez de água potável, agravada por mudanças climáticas e 
+                urbanização. A aplicação da Internet das Coisas (IoT) é explorada para monitorar o consumo de 
+                água do Instituto Federal de Sergipe, campus Lagarto, buscando estimar custos, controlar 
+                disponibilidade e facilitar a manutenção. O projeto utiliza sensores de vazão de água e um 
+                protótipo cuja estrutura física foi criada a partir de impressão 3D. O resultado alcançado 
+                demonstra a viabilidade de soluções sustentáveis e acessíveis para um consumo consciente de 
+                água em prédios públicos e privados.</p>
+            </div>
+          </div>
+          <div>
+            <h1 class="textExplanationSection">Por que o <span>MOREA - DS</span> é Importante?</h1>
+            <div class="divTextOne">
+              <p>A água potável é um bem valioso que merece atenção e cuidados para 
+                sua preservação. Entretanto, pesquisas feitas no ano de 2022, pela Organização 
+                Mundial da Saúde (OMS), Fundo das Nações Unidas para a Infância (UNICEF) 
+                e Banco Mundial, concluíram que 25% da população ainda não tem acesso a 
+                água potável. As mudanças climáticas acabam agravando a 
+                intensidade das secas e inundações, que causam a insegurança hídrica, 
+                interrompem o abastecimento de água e arrasam comunidades.
+                </p>
+                <p>
+                Em ambientes tais como prédios, pode-se observar que problemas 
+                estruturais são os principais causadores dos desperdícios de água: vazamentos 
+                invisíveis, problemas estruturais em caixas de alvenaria ou uso indevido da água.</p>
+                <p>
+            
+                Diante disso, destacam-se projetos para um uso mais sustentável da 
+                água, assim como de outros recursos cuja cadeia produtiva impactam 
+                diretamente no meio-ambiente, como a energia elétrica. Sendo assim, este artigo 
+                apresenta um protótipo que foi criado, com o objetivo de monitorar o consumo 
+                de água em diversos pontos do Instituto Federal de Sergipe - Campus Lagarto, 
+                utilizando tecnologias típicas do que se chama atualmente de Internet das Coisas 
+                (IoT - Internet of Things). Os principais benefícios do uso dessa abordagem 
+                seriam: (1) Estimativa de Custo; (2) Controle de Disponibilidade; (3) Manutenção 
+                (detecção de vazamentos e acionamento de reparos).
+              </p>              
+            </div>
+          </div>
+          <div>
+            <h1 class="textExplanationSection">Como o <span>MOREA - DS</span> Funciona?</h1>
+            <div class="divTextOne">
+              <p>Os sensores de vazão, como os usados no protótipo, medem a 
+                quantidade de líquido que passa por uma tubulação em um determinado período. 
+                Esses sensores são essenciais para uma gestão eficiente dos recursos hídricos. 
+                Além do medidor de vazão e da tecnologia IoT, o protótipo utiliza modelagem 3D 
+                para criar uma estrutura física personalizada, permitindo a rápida prototipagem 
+                de componentes adequados a cenários específicos.
+              </p>
+              <p>O dispositivo mote (abreviação do termo "mobile remote") é construído 
+                  com ênfase na economia de recursos. Isso inclui a reutilização de caixas de 
+                  tomada e a modelagem 3D para minimizar custos.</p>
+              <p>A transmissão de dados acontece através do protocolo HTTP, onde o
+                  mote envia, por meio do método GET, uma chave de segurança, os dados de 
+                  coleta de consumo dos últimos 5 minutos e seu código de identificação. A coluna 
+                  de “total coletado” é calculada pelo servidor. Após o envio dos dados, o Mote 
+                  exibe uma mensagem de confirmação no display e volta a fazer as coletas.
+              </p>
+              <p>Quanto ao processamento, escolheu-se uma abordagem eficiente e 
+                econômica. A implementação envolve uma VM - Virtual Machine - da AWS que 
+                recebe os dados, em um sistema operacional Ubuntu Server 22.04, equipada 
+                com 1 GB de RAM e 1 VCPU. Os dados são tratados usando o framework 
+                Django. Além disso, para gerenciar os dados recebidos, o Nginx é usado para o 
+                encaminhamento de requisições.
+              </p>
+            </div>
+          </div>
+          <div class="divTextTwo">
+            <h1 class="textExplanationSection">Quais Tecnologias o <span>MOREA - DS</span> Utiliza?</h1>
+            <p>As principais tecnologias usadas para construção dos protótipos são: Esp32 NodeMCU, Sensor de consumo elétrico e Sensor de fluxo de água. </p>
+              
+            <div class="tecnologyDivItens">
+              <img src="{% static 'assets/images/home/image-1.png' %}" alt="image tecnology" />
+              <p>O ESP32 NodeMCU é uma placa de desenvolvimento baseada no módulo ESP32S WiFi, o qual é um componente eletrônico altamente tecnológico desenvolvido especialmente para conectar projetos robóticos.</p>
+            </div>
+  
+            <div class="tecnologyDivItens row--reverse">
+              <img src="{% static 'assets/images/home/image-2.png' %}" alt="image tecnology" />
+              <p>O Sensor de Fluxo de Água YF-S201 possibilita medir o fluxo de água. Ele é instalado em linha com seu cano para medir a quantidade de água que circula por ele, enviando pulsos PWM.</p>
+            </div>
+  
+            <div class="tecnologyDivItens">
+              <img style="width: 172px; height: auto;" src="{% static 'assets/images/home/tela-oled.webp' %}" alt="image tecnology" />
+              <p>A tela oled é um componente essencial do nosso protótipo, sendo utilizado para identificação dos dispositivos, visualização em tempo real do consumo acumulado e verificação se status de funcionamento.</p>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Layout{% endblock %}</title>
+
+    <link rel="icon" href="{% static 'assets/images/logo-morea-ds-noname.png' %}" type="image/png">
+
+    <link rel="stylesheet" href="{% static 'css/layout/index.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/layout/layout.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/layout/menu.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,1,0" />
+
+    <link 
+      rel="stylesheet" 
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+
+    {% block stylesCustom %}{% endblock  %}
+  </head>
+  <body>
+    <div class="header">
+      
+      <div class="header__logo">
+        <img src="{% static 'assets/images/logo-morea-ds-noname.png' %}"></img>
+        <p>MOREA</p>
+      </div>
+      
+      {% comment %} Menu for desktop {% endcomment %}
+      <div class="header__divOptionsMenuDesktop">
+        <a href="{% url 'Home' %}" class="header__options">Início</a>
+        <a href="{% url 'Dashboard' %}" class="header__options">Dashboard</a>
+        <a href="{% url 'Members' %}" class="header__options">Novidades</a>
+        <a href="{% url 'News' %}" class="header__options">Membros</a>
+        
+      </div> 
+      {% comment %} Menu for mobile {% endcomment %}
+
+      <label class="header__labelMenuMobile" for="header__chekboxMenuMobile">
+        <span 
+          class="
+            material-symbols-outlined
+            header__iconMenu">
+          menu
+        </span>
+      </label>
+      
+      <input type="checkbox" name="header__chekboxMenuMobile" id="header__chekboxMenuMobile">
+      <div class="header__divOptionsMenuMobile">
+        <a href="{% url 'Home' %}" class="header__options">Início</a>
+        <a href="{% url 'Dashboard' %}" class="header__options">Dashboard</a>
+        <a href="{% url 'Members' %}" class="header__options">Novidades</a>
+        <a href="{% url 'News' %}" class="header__options">Membros</a>
+        
+      </div>
+    </div>
+    <div class="content home__content">{% block content %}{% endblock %}</div>
+    <div class="footer">
+      <div>
+        <img
+        class="footer__logo"
+        src="{% static 'assets/images/logo-ifs.png' %}"
+        alt="Logo IFS" />
+        <img
+        class="footer__logo"
+        src="{% static 'assets/images/logo-propex.png' %}"
+        alt="Logo Propex" />
+      </div>
+      <p>Todos direitos reservados MOREA 2024.</p>
+    </div>
+
+    <script src="{% static 'js/menu.js' %}"></script>
+    {% block scriptsCustom %}{% endblock  %}
+  </body>
+</html>
