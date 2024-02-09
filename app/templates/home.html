@@ -1,0 +1,62 @@
+{% extends 'layout.html' %} 
+
+{% load static %}
+
+{% block title %}Morea | Home{% endblock %}
+
+{% block stylesCustom %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+  
+{% block content %}
+  <div class="home">
+    <div class="sectionApresentation">
+      <video class="videoHomeApresentation" autoplay muted loop>
+        <source src="{% static 'assets/video/home.mp4' %}" type="video/mp4">
+        <source src="{% static 'assets/video/home.avi' %}" type="video/avi">
+        <source src="{% static 'assets/video/home.webm' %}" type="video/webm">
+      </video>
+      <div class="textsApresentation">
+        <h1>Seja Bem-Vindo ao <span>MOREA!</span></h1>
+        <p>O projeto de pesquisa que usa o melhor que a tecnologia têm a oferecer</p>
+        <button class="buttonMore">Saiba Mais</button>
+      </div>
+      <div class="containerImageApresentation">
+        <span class="bg-logo"></span>
+        <img class="imageApresentation" src="{% static 'assets/images/logo-morea-ds-noname.png' %}" alt="Image apresentation">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <h1 class="textWhatMorea">O Que é o <span>MOREA?</span></h1>
+    <div class="containerMinAboutMorea">
+      <div class="divTextOne">
+        <p>O projeto <span>MOREA</span> tem como objetivo realizar estudos sobre a aplicação, implementação e uso de um protótipo de sistema integrado para o monitoramento setorizado de consumo de <span>água, energia e qualidade de ar,</span> permitindo a identificação de situações atípicas, além de prever estatísticas mensais dos mesmos dados.</p>
+
+        <p>Este projeto busca produzir um estudo de caso sobre a aplicação de medição setorizada de eletricidade e água em um campus inteligente, mais especificamente, realizar a integração em rede de sensores, microcontroladores e sistemas computacionais embarcados para monitoramento de água e energia, avaliar o uso de métodos estatísticos de análise e predição para a detecção de anomalias no consumo e realizar estimativas do percentual do volume de água consumido.</p>
+
+        <p>O MOREA impacta o meio ambiente de modo positivo e econômico, evitando o desperdício de água e eletricidade no Campus.</p>
+      </div>
+      <div class="divTextTwo">
+        <h2>Tecnologias</h2>
+        <p>As principais tecnologias usadas para construção dos protótipos são: Esp32 NodeMCU, Sensor de consumo elétrico e Sensor de fluxo de água. </p>
+
+        <div class="tecnologyDivItens">
+          <img src="{% static 'assets/images/home/image-1.png' %}" alt="image tecnology" />
+          <p>O ESP32 NodeMCU é uma placa de desenvolvimento baseada no módulo ESP32S WiFi, o qual é um componente eletrônico altamente tecnológico desenvolvido especialmente para conectar projetos robóticos.</p>
+        </div>
+
+        <div class="tecnologyDivItens row--reverse">
+          <img src="{% static 'assets/images/home/image-2.png' %}" alt="image tecnology" />
+          <p>O Sensor de Fluxo de Água YF-S201 possibilita medir o fluxo de água. Ele é instalado em linha com seu cano para medir a quantidade de água que circula por ele, enviando pulsos PWM.</p>
+        </div>
+
+        <div class="tecnologyDivItens">
+          <img src="{% static 'assets/images/home/image-3.png' %}" alt="image tecnology" />
+          <p>O Sensor de corrente SCT-013 é muito versátil e tem como principal vantagem o fato de não precisar de contato elétrico com o circuito para medir a corrente elétrica alternada.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -8,6 +8,14 @@ from .models import Device, Data
 
 # Create your views here.
 
+# Render
+
+
+def index(request):
+    return render(request, 'home.html')
+
+# API
+
 
 @api_view(['POST'])
 def identifyDevice(request):
