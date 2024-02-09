@@ -61,14 +61,17 @@
     </div>
     <div class="content home__content">{% block content %}{% endblock %}</div>
     <div class="footer">
-      <img
+      <div>
+        <img
         class="footer__logo"
         src="{% static 'assets/images/logo-ifs.png' %}"
         alt="Logo IFS" />
-      <img
+        <img
         class="footer__logo"
         src="{% static 'assets/images/logo-propex.png' %}"
         alt="Logo Propex" />
+      </div>
+      <p>Todos direitos reservados MOREA 2024.</p>
     </div>
 
     <script src="{% static 'js/menu.js' %}"></script>

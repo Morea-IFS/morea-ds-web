@@ -54,7 +54,7 @@
 }
 
 .textsApresentation h1 span,
-.textWhatMorea span {
+.textWhatMorea span, .textExplanationSection span {
     background-image: var(--linear-webkit-blue-pink);
     background-image: var(--linear-blue-pink);
     background-clip: text;
@@ -146,7 +146,15 @@
 }
 
 .textWhatMorea {
-    padding: 40px 0;
+    padding: 36px 0 24px 0;
+    text-align: center;
+    font-weight: 600;
+    font-size: clamp(1.7em, 2vw, 1.8em);
+    color: var(--color-textBlack);
+}
+
+.textExplanationSection {
+    padding: 24px 0 16px 0;
     text-align: center;
     font-weight: 600;
     font-size: clamp(1.7em, 2vw, 1.8em);
@@ -174,7 +182,11 @@
 .divTextOne {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
+}
+
+.divTextOne p {
+    text-indent: 2rem;
 }
 
 .containerMinAboutMorea p {
