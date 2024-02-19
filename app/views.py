@@ -5,8 +5,10 @@ from rest_framework.response import Response
 import uuid
 
 # Graphs
+from datetime import timedelta, time
+import datetime
 import plotly.express as px
-
+import pandas as pd
 from .models import Device, Data
 
 # Create your views here.
@@ -19,11 +21,50 @@ def index(request):
 
 
 def dashboard(request):
-    config = {'staticPlot': True}
 
-    fig = px.line(x=["a", "b", "c"], y=[1, 3, 2], )
-    fig.update_layout()
-    fig.write_html('static/graphs/first_figure.html', config, )
+    # dataList = list(Data.objects.values_list('last_collection', flat=True))
+    # datetimeList = list(Data.objects.values_list('collect_date', flat=True))
+    # timeList = []
+
+    # for i in datetimeList:
+    #     brTimeZone = i + timedelta(hours=-3)
+    #     time = brTimeZone.strftime('%H:%M')
+
+    #     timeList.append(time)
+
+    idList = list(Device.objects.filter(type=1).values_list('id', flat=True))
+    dataFrameList = []
+
+    for i in idList:
+        counter = 0
+        dateFrom = datetime.datetime.now() - timedelta(days=1)
+        infoList = Device.objects.get(id=str(i))
+        dataList = list(Data.objects.filter(
+            device=i, collect_date__gte=dateFrom).values_list('last_collection', flat=True))
+        datetimeList = list(Data.objects.filter(
+            device=i, collect_date__gte=dateFrom).values_list('collect_date', flat=True))
+        timeList = []
+
+        for time in datetimeList:
+            brTimeZone = time + timedelta(hours=-3)
+            formatTime = brTimeZone.strftime('%H:%M')
+            timeList.append(formatTime)
+
+        for collection in dataList:
+            tempList = [infoList.name, collection, timeList[counter]]
+            counter += 1
+            dataFrameList.append(tempList)
+
+    df = pd.DataFrame(dataFrameList, columns=[
+                      'Dispositivo', 'Consumo(L)', 'Hora'])
+
+    print(df)
+
+    config = {'displayModeBar': False}
+
+    fig = px.line(df, x='Hora', y="Consumo(L)", color='Dispositivo')
+    fig.update_layout(dragmode=False)
+    fig.write_html('static/graphs/first_figure.html', config)
 
     return render(request, 'dashboard.html')
 
