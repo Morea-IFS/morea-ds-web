@@ -1,6 +1,10 @@
 asgiref==3.7.2
 Django==5.0.1
 djangorestframework==3.14.0
+packaging==23.2
 pillow==10.2.0
+plotly==5.19.0
 pytz==2024.1
 sqlparse==0.4.4
+tenacity==8.2.3
+PyMySQL==1.1.0

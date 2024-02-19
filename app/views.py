@@ -4,6 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
 
+# Graphs
+import plotly.express as px
+
 from .models import Device, Data
 
 # Create your views here.
@@ -16,6 +19,12 @@ def index(request):
 
 
 def dashboard(request):
+    config = {'staticPlot': True}
+
+    fig = px.line(x=["a", "b", "c"], y=[1, 3, 2], )
+    fig.update_layout()
+    fig.write_html('static/graphs/first_figure.html', config, )
+
     return render(request, 'dashboard.html')
 
 
@@ -70,7 +79,9 @@ def getDeviceIp(request):
                 deviceObject.ip_address = str(deviceIp)
                 deviceObject.save()
 
-                return Response({'message': 'ip received.'}, status=status.HTTP_200_OK)
+                print(deviceObject.name)
+
+                return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'ip not received.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
