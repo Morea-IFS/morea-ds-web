@@ -7,3 +7,5 @@ db.sqlite3
 
 env/
 dev.py
+static/graphs/*
+media/graphs/*

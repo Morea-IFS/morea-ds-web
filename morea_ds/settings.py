@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'app.apps.AppConfig',
 ]
 
@@ -52,6 +53,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'morea_ds.urls'
+
+CRONJOBS = [
+    ('0 0 * * *', 'app.graphs.generateAllMotes24hRaw')
+]
 
 TEMPLATES = [
     {
@@ -129,7 +134,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

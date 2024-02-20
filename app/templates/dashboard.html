@@ -5,12 +5,17 @@
 {% block title %}Morea | Home{% endblock %}
 
 {% block stylesCustom %}
-  <link rel="stylesheet" href="{% static 'about/css/about.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-    <img style="width: 64px; height: auto" src="{% static 'assets/images/logo-ifs.png' %}" />
-    <h3>Em Desenvolvimento</h3>
+<div class="container">
+  <h1>Gráficos Brutos das Últimas 24 horas</h1>
+  <div class="graph">
+    <iframe class="iframe" src="{% get_media_prefix %}{{wMote.file_path}}" title="test"></iframe>
+  </div>
+  <div class="graph">
+    <iframe class="iframe" src="{% get_media_prefix %}{{eMote.file_path}}" title="test"></iframe>
+  </div>
 </div>
 {% endblock %}

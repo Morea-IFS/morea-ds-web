@@ -4,7 +4,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
 
-from .models import Device, Data
+# Graphs
+from datetime import timedelta, time
+import datetime
+import plotly.express as px
+import pandas as pd
+from .models import Device, Data, Graph
+from .graphs import generateAllMotes24hRaw
 
 # Create your views here.
 
@@ -16,7 +22,11 @@ def index(request):
 
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
+
+    allWMotes24hRaw = Graph.objects.get(type=1)
+    allEMotes24hRaw = Graph.objects.get(type=2)
+
+    return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw})
 
 
 def members(request):
@@ -70,7 +80,9 @@ def getDeviceIp(request):
                 deviceObject.ip_address = str(deviceIp)
                 deviceObject.save()
 
-                return Response({'message': 'ip received.'}, status=status.HTTP_200_OK)
+                print(deviceObject.name)
+
+                return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'ip not received.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
