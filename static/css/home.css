@@ -1,242 +1,241 @@
 .home__content {
-    max-width: none;
+	max-width: none;
 }
 
 .home {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    min-height: calc(100vh - var(--height-header) - var(--height-footer));
-    text-align: start;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	min-height: calc(100vh - var(--height-header) - var(--height-footer));
+	text-align: start;
 }
 
 .sectionApresentation {
-    position: relative;
-    display: flex;
-    gap: 30px;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    color: var(--color-main);
-    padding: 20px 30px;
-    background-color: var(--color-black);
-    overflow: hidden;
+	position: relative;
+	display: flex;
+	gap: 30px;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	color: var(--color-main);
+	padding: 20px 30px;
+	background-color: var(--color-black);
+	overflow: hidden;
 }
 
 .videoHomeApresentation {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    opacity: 0.2;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	opacity: 0.2;
 }
 
 .textsApresentation,
 .imageApresentation {
-    position: relative;
+	position: relative;
 }
 
 .textsApresentation {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
 }
 
 .textsApresentation h1 {
-    font-size: clamp(1.8em, 2vw, 2.2em);
+	font-size: clamp(1.8em, 2vw, 2.2em);
 }
 
 .textsApresentation h1 span,
-.textWhatMorea span, .textExplanationSection span {
-    background-image: var(--linear-webkit-blue-pink);
-    background-image: var(--linear-blue-pink);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+.textWhatMorea span,
+.textExplanationSection span {
+	background-image: var(--linear-webkit-blue-pink);
+	background-image: var(--linear-blue-pink);
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
 }
 
 .textsApresentation p {
-    font-size: clamp(0.9em, 2vw, 1.2em);
-    max-width: 500px;
+	font-size: clamp(0.9em, 2vw, 1.2em);
+	max-width: 500px;
 }
 
 .buttonMore {
-    display: flex;
-    background: var(--color-blue);
-    border: 1px solid var(--border-trasparent2);
-    outline: none;
-    padding: 8px 20px;
-    border-radius: 20px;
-    color: var(--color-main);
-    margin-top: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    align-self: flex-start;
+	display: flex;
+	background: var(--color-blue);
+	border: 1px solid var(--border-trasparent2);
+	outline: none;
+	padding: 8px 20px;
+	border-radius: 20px;
+	color: var(--color-main);
+	margin-top: 20px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-weight: 600;
+	align-self: flex-start;
 }
 
 .buttonMore:hover {
-    transform: translateY(-5px);
+	transform: translateY(-5px);
 }
 
 .imageApresentation {
-    width: 100%;
-    max-width: 300px;
-    z-index: 1;
-    animation: imageApresentationAnimation 5s infinite alternate ease-in-out;
+	width: 100%;
+	max-width: 300px;
+	z-index: 1;
+	animation: imageApresentationAnimation 5s infinite alternate ease-in-out;
 }
 
 @keyframes imageApresentationAnimation {
-    0% {
-        transform: translate(0px, 0px) rotate(0);
-    }
+	0% {
+		transform: translate(0px, 0px) rotate(0);
+	}
 
-    50% {
-        transform: translate(22px, 5px) rotate(-2deg);
-    }
+	50% {
+		transform: translate(22px, 5px) rotate(-2deg);
+	}
 
-    100% {
-        transform: translate(0px, 10px) rotate(4deg);
-    }
+	100% {
+		transform: translate(0px, 10px) rotate(4deg);
+	}
 }
 
 .containerImageApresentation {
-    position: relative;
+	position: relative;
 }
 
 .containerImageApresentation span {
-    position: absolute;
-    background-color: var(--color-blue);
-    border-radius: 100%;
-    border: 1px solid var(--border-trasparent2);
+	position: absolute;
+	background-color: var(--color-blue);
+	border-radius: 100%;
+	border: 1px solid var(--border-trasparent2);
 }
 
 .containerImageApresentation span:nth-child(3) {
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 50%;
-    animation: imageApresentationAnimation 6s infinite alternate ease-in-out;
-    animation-delay: 1s;
+	top: 0;
+	left: 0;
+	width: 50%;
+	height: 50%;
+	animation: imageApresentationAnimation 6s infinite alternate ease-in-out;
+	animation-delay: 1s;
 }
 
 .containerImageApresentation span:nth-child(4) {
-    right: 0;
-    bottom: 0;
-    width: 30%;
-    height: 30%;
-    animation: imageApresentationAnimation 3s infinite alternate ease-in-out;
-    animation-delay: 1s;
-    z-index: 2;
+	right: 0;
+	bottom: 0;
+	width: 30%;
+	height: 30%;
+	animation: imageApresentationAnimation 3s infinite alternate ease-in-out;
+	animation-delay: 1s;
+	z-index: 2;
 }
 
 .bg-logo {
-    width: 100%;
-    height: 100%;
-    background-image: var(--linear-bg-image-home);
-    filter: blur(70px);
+	width: 100%;
+	height: 100%;
+	background-image: var(--linear-bg-image-home);
+	filter: blur(70px);
 }
 
 .textWhatMorea {
-    padding: 36px 0 24px 0;
-    text-align: center;
-    font-weight: 600;
-    font-size: clamp(1.7em, 2vw, 1.8em);
-    color: var(--color-textBlack);
+	padding: 36px 0 24px 0;
+	text-align: center;
+	font-weight: 600;
+	font-size: clamp(1.7em, 2vw, 1.8em);
+	color: var(--color-textBlack);
 }
 
 .textExplanationSection {
-    padding: 24px 0 16px 0;
-    text-align: center;
-    font-weight: 600;
-    font-size: clamp(1.7em, 2vw, 1.8em);
-    color: var(--color-textBlack);
+	padding: 24px 0 16px 0;
+	text-align: center;
+	font-weight: 600;
+	font-size: clamp(1.7em, 2vw, 1.8em);
+	color: var(--color-textBlack);
 }
 
 .containerMinAboutMorea {
-    display: flex;
-    gap: 40px;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 0 30px 30px 30px;
-    width: 100%;
-    max-width: 1200px;
-    color: var(--color-textDefault);
-    text-align: justify;
+	display: flex;
+	gap: 40px;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	padding: 0 30px 30px 30px;
+	width: 100%;
+	max-width: 1200px;
+	color: var(--color-textDefault);
+	text-align: justify;
 }
 
 .containerMinAboutMorea span {
-    font-weight: 600;
-    color: var(--color-textBlack);
+	font-weight: 600;
+	color: var(--color-textBlack);
 }
 
 .divTextOne {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .divTextOne p {
-    text-indent: 2rem;
-}
-
-.containerMinAboutMorea p {
-    font-size: clamp(0.9em, 2vw, 1em);
+	text-indent: 2rem;
+	font-size: 16px;
 }
 
 .divTextTwo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	font-size: 16px;
 }
 
 .divTextTwo h2 {
-    color: var(--color-textBlack);
+	color: var(--color-textBlack);
 }
 
 .tecnologyDivItens {
-    display: flex;
-    gap: 25px;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	gap: 25px;
+	justify-content: center;
+	align-items: center;
 }
 
 .row--reverse {
-    flex-direction: row-reverse;
+	flex-direction: row-reverse;
 }
 
 @media (max-width: 768px) {
-    .sectionApresentation {
-        flex-direction: column-reverse;
-        gap: 0px;
-        padding: 30px;
-    }
+	.sectionApresentation {
+		flex-direction: column-reverse;
+		gap: 0px;
+		padding: 30px;
+	}
 
-    .textsApresentation {
-        text-align: center;
-        align-items: center;
-        justify-content: center;
-    }
+	.textsApresentation {
+		text-align: center;
+		align-items: center;
+		justify-content: center;
+	}
 
-    .buttonMore {
-        align-self: center;
-    }
+	.buttonMore {
+		align-self: center;
+	}
 
-    .tecnologyDivItens {
-        flex-direction: column;
-    }
+	.tecnologyDivItens {
+		flex-direction: column;
+	}
 
-    .videoHomeApresentation {
-        width: auto;
-        height: 100%;
-    }
+	.videoHomeApresentation {
+		width: auto;
+		height: 100%;
+	}
 }

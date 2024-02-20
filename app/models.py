@@ -3,11 +3,19 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
+# Graph nomenclature deviceType-timeCovered-type
+
 
 class DeviceTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     water = 1, 'Water',
     energy = 2, 'Energy'
+
+
+class GraphsTypes(models.IntegerChoices):
+    none = 0, 'Not Defined',
+    allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
+    allEMoteDevices24hRaw = 2, 'All EMote Devices | 24h | Raw',
 
 
 class ExtendUser(AbstractUser):
@@ -51,3 +59,11 @@ class Data(models.Model):
         null=True, blank=True)  # Litros/Hora no último minuto
     total = models.FloatField(default=0)  # Listros totais
     collect_date = models.DateTimeField(auto_now_add=True)  # Data de coleta
+
+
+class Graph(models.Model):
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, null=True, blank=True)
+    type = models.IntegerField(
+        choices=GraphsTypes.choices, default=GraphsTypes.none)
+    file_path = models.CharField(max_length=255, blank=True, null=True)
