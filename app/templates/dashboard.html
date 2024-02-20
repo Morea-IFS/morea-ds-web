@@ -12,10 +12,10 @@
 <div class="container">
   <h1>Gráficos Brutos das Últimas 24 horas</h1>
   <div class="graph">
-    <iframe class="iframe" src="/media/graphs/allWMoteDevices24hRaw.html" title="test"></iframe>
+    <iframe class="iframe" src="{% get_media_prefix %}{{wMote.file_path}}" title="test"></iframe>
   </div>
   <div class="graph">
-    <iframe class="iframe" src="/media/graphs/allEMoteDevices24hRaw.html" title="test"></iframe>
+    <iframe class="iframe" src="{% get_media_prefix %}{{eMote.file_path}}" title="test"></iframe>
   </div>
 </div>
 {% endblock %}

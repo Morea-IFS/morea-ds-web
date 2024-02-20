@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'app.apps.AppConfig',
 ]
 
@@ -52,6 +53,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'morea_ds.urls'
+
+CRONJOBS = [
+    ('0 0 * * *', 'app.graphs.generateAllMotes24hRaw')
+]
 
 TEMPLATES = [
     {
