@@ -58,12 +58,12 @@ def dashboard(request):
     df = pd.DataFrame(dataFrameList, columns=[
                       'Dispositivo', 'Consumo(L)', 'Hora'])
 
-    print(df)
-
     config = {'displayModeBar': False}
 
-    fig = px.line(df, x='Hora', y="Consumo(L)", color='Dispositivo')
+    fig = px.line(df, x='Hora', y="Consumo(L)",
+                  color='Dispositivo', markers=True)
     fig.update_layout(dragmode=False)
+    fig.update_traces(textposition="bottom right")
     fig.write_html('static/graphs/first_figure.html', config)
 
     return render(request, 'dashboard.html')
