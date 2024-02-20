@@ -9,8 +9,13 @@
 {% endblock %}
 
 {% block content %}
-<div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-    <iframe style="outline: none; border: none;" src="/media/graphs/allWMoteDevices24hRaw.html" title="test" height="270" width="480"></iframe>
-    <iframe style="outline: none; border: none;" src="/media/graphs/allEMoteDevices24hRaw.html" title="test" height="270" width="480"></iframe>
+<div class="container">
+  <h1>Gráficos Brutos das Últimas 24 horas</h1>
+  <div class="graph">
+    <iframe class="iframe" src="/media/graphs/allWMoteDevices24hRaw.html" title="test"></iframe>
+  </div>
+  <div class="graph">
+    <iframe class="iframe" src="/media/graphs/allEMoteDevices24hRaw.html" title="test"></iframe>
+  </div>
 </div>
 {% endblock %}
