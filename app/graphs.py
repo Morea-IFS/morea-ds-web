@@ -27,15 +27,10 @@ def generateAllMotes24hRaw():
                 device=i, collect_date__gte=dateFrom).values_list('last_collection', flat=True))
             datetimeList = list(Data.objects.filter(
                 device=i, collect_date__gte=dateFrom).values_list('collect_date', flat=True))
-            timeList = []
-
-            for time in datetimeList:
-                brTimeZone = time + timedelta(hours=-3)
-                formatTime = brTimeZone.strftime('%H:%M')
-                timeList.append(formatTime)
 
             for collection in dataList:
-                tempList = [infoList.name, collection, timeList[counter]]
+                tempList = [infoList.name, collection,
+                            (datetimeList[counter] - timedelta(hours=3)).strftime('%H:%M')]
                 counter += 1
                 dataFrameList.append(tempList)
 

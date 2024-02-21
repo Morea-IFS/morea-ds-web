@@ -3,18 +3,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-
-# Graphs
-from datetime import timedelta, time
-import datetime
-import plotly.express as px
-import pandas as pd
 from .models import Device, Data, Graph
-from .graphs import generateAllMotes24hRaw
 
 # Create your views here.
 
 # Render
+from .graphs import generateAllMotes24hRaw
 
 
 def index(request):
@@ -25,6 +19,8 @@ def dashboard(request):
 
     allWMotes24hRaw = Graph.objects.get(type=1)
     allEMotes24hRaw = Graph.objects.get(type=2)
+
+    generateAllMotes24hRaw()
 
     return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw})
 
