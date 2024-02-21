@@ -5,6 +5,8 @@ morea_ds/__pycache__/
 
 db.sqlite3
 
+.env
+
 env/
 dev.py
 static/graphs/*
