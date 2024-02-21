@@ -5,12 +5,61 @@
 {% block title %}Morea | Home{% endblock %}
 
 {% block stylesCustom %}
-  <link rel="stylesheet" href="{% static 'about/css/about.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/members.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-    <img style="width: 64px; height: auto" src="{% static 'assets/images/logo-ifs.png' %}" />
-    <h3>Em Desenvolvimento</h3>
+<div class="container">
+  <h1>Membros</h1>
+  <div class="area_container">
+    <h2>Orientadores</h2>
+    <div class="profiles_container">
+      {% for member in advisors %}
+        <div class="profile_container">
+          <img class="profile_image" src="{% get_media_prefix %}{{member.profile_photo}}" alt="User Profile">
+          {% if member.first_name %}
+            <h3>{{member.first_name}} {{member.last_name}}</h3>
+          {% else %}
+            <h3>{{member.username}}</h3>
+          {% endif %}
+          <p>{{member.description}}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="area_container">
+    <h2>Membros Ativos</h2>
+    <div class="profiles_container">
+      {% for member in activeMembers %}
+        <div class="profile_container">
+          <img class="profile_image" src="{% get_media_prefix %}{{member.profile_photo}}" alt="User Profile">
+          {% if member.first_name %}
+            <h3>{{member.first_name}} {{member.last_name}}</h3>
+          {% else %}
+            <h3>{{member.username}}</h3>
+          {% endif %}
+          <p>{{member.description}}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if oldMembers %}
+  <div class="area_container">
+    <h2>Egressos</h2>
+    <div class="profiles_container">
+      {% for member in oldMembers %}
+        <div class="profile_container">
+          <img class="profile_image old_member_profile" src="{% get_media_prefix %}{{member.profile_photo}}" alt="User Profile">
+          {% if member.first_name %}
+            <h3>{{member.first_name}} {{member.last_name}}</h3>
+          {% else %}
+            <h3>{{member.username}}</h3>
+          {% endif %}
+          <p>{{member.description}}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

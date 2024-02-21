@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, Data, Graph
+from .models import Device, Data, Graph, ExtendUser
 
 # Create your views here.
 
@@ -20,13 +20,18 @@ def dashboard(request):
     allWMotes24hRaw = Graph.objects.get(type=1)
     allEMotes24hRaw = Graph.objects.get(type=2)
 
-    generateAllMotes24hRaw()
-
     return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw})
 
 
 def members(request):
-    return render(request, 'members.html')
+    advisors = ExtendUser.objects.all().filter(
+        is_advisor=True).order_by('username')
+    activeMembers = ExtendUser.objects.all().filter(
+        is_active=True, is_advisor=False).order_by('username')
+    oldMembers = ExtendUser.objects.all().filter(
+        is_active=False, is_advisor=False).order_by('username')
+
+    return render(request, 'members.html', {'advisors': advisors, 'activeMembers': activeMembers, 'oldMembers': oldMembers})
 
 
 def news(request):
