@@ -15,6 +15,7 @@ class CustomUserAdmin(UserAdmin):
                 'fields': (
                     'profile_photo',
                     'description',
+                    'is_advisor'
                 ),
             },
         ),

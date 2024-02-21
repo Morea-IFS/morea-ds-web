@@ -20,8 +20,9 @@ class GraphsTypes(models.IntegerChoices):
 
 class ExtendUser(AbstractUser):
     profile_photo = models.ImageField(
-        upload_to='profile/', default='profile/default.png')
-    description = models.CharField(max_length=32, blank=True)
+        upload_to='profile/', default='defaults/profile_default.png')
+    description = models.CharField(max_length=256, blank=True)
+    is_advisor = models.BooleanField(default=False)
 
     def __str__(self):
         if (self.first_name) and (self.last_name):

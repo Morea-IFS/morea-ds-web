@@ -3,18 +3,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-
-# Graphs
-from datetime import timedelta, time
-import datetime
-import plotly.express as px
-import pandas as pd
-from .models import Device, Data, Graph
-from .graphs import generateAllMotes24hRaw
+from .models import Device, Data, Graph, ExtendUser
 
 # Create your views here.
 
 # Render
+from .graphs import generateAllMotes24hRaw
 
 
 def index(request):
@@ -30,7 +24,14 @@ def dashboard(request):
 
 
 def members(request):
-    return render(request, 'members.html')
+    advisors = ExtendUser.objects.all().filter(
+        is_advisor=True).order_by('username')
+    activeMembers = ExtendUser.objects.all().filter(
+        is_active=True, is_advisor=False).order_by('username')
+    oldMembers = ExtendUser.objects.all().filter(
+        is_active=False, is_advisor=False).order_by('username')
+
+    return render(request, 'members.html', {'advisors': advisors, 'activeMembers': activeMembers, 'oldMembers': oldMembers})
 
 
 def news(request):
