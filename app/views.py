@@ -1,14 +1,17 @@
+from .graphs import generateAllMotes24hRaw
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, Data, Graph, ExtendUser
+from .models import Device, Data, Graph, ExtendUser, New
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Create your views here.
 
 # Render
-from .graphs import generateAllMotes24hRaw
 
 
 def index(request):
@@ -35,7 +38,11 @@ def members(request):
 
 
 def news(request):
-    return render(request, 'news.html')
+    internNews = New.objects.select_related(
+        'user').order_by('created_at').reverse()
+    gitToken = os.getenv("GITTOKEN")
+
+    return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
 # API
 

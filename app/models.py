@@ -68,3 +68,10 @@ class Graph(models.Model):
     type = models.IntegerField(
         choices=GraphsTypes.choices, default=GraphsTypes.none)
     file_path = models.CharField(max_length=255, blank=True, null=True)
+
+
+class New(models.Model):
+    user = models.ForeignKey(
+        ExtendUser, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

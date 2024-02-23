@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Device, Data, ExtendUser, Graph
+from .models import Device, Data, ExtendUser, Graph, New
 
 # Register your models here.
 
@@ -35,7 +35,12 @@ class GraphsAdmin(admin.ModelAdmin):
     list_display = ['id', 'device', 'type', 'file_path']
 
 
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'message', 'created_at']
+
+
 admin.site.register(ExtendUser, CustomUserAdmin)
 admin.site.register(Device, DevicesAdmin)
 admin.site.register(Data, DataAdmin)
 admin.site.register(Graph, GraphsAdmin)
+admin.site.register(New, NewsAdmin)
