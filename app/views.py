@@ -4,7 +4,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, Data, Graph, ExtendUser
+from .models import Device, Data, Graph, ExtendUser, New
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Create your views here.
 
@@ -35,8 +38,11 @@ def members(request):
 
 
 def news(request):
+    internNews = New.objects.select_related(
+        'user').order_by('created_at').reverse()
+    gitToken = os.getenv("GITTOKEN")
 
-    return render(request, 'news.html')
+    return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
 # API
 

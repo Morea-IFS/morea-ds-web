@@ -1,5 +1,6 @@
 const dashboardNewsDiv = document.querySelector("#dashboard_news")
 const iotNewsDiv = document.querySelector("#iot_news")
+const gitToken = document.querySelector("#git_token").getAttribute("aria-token")
 
 async function getNews(url, newsDiv) {
 	let NewsHTML = ""
@@ -8,6 +9,7 @@ async function getNews(url, newsDiv) {
 	const News = await fetch(`${url}`, {
 		headers: {
 			"X-GitHub-Api-Version": "2022-11-28",
+			Authorization: `Bearer ${gitToken}`,
 		},
 	}).then((res) => res.json())
 
