@@ -150,6 +150,9 @@ if (os.getenv("ENVIRONMENT") == "DEV"):
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 elif (os.getenv("ENVIRONMENT") == 'PROD'):
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static/')
+    ]
     MEDIA_ROOT = '/var/www/html/Morea/media'
     STATIC_ROOT = '/var/www/html/Morea/static'
 
