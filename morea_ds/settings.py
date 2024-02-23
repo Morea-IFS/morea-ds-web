@@ -139,16 +139,21 @@ USE_TZ = True
 
 AUTH_USER_MODEL = 'app.ExtendUser'
 
-STATIC_URL = 'static/'
 
 STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static/')
-]
-
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+if (os.getenv("ENVIRONMENT") == "DEV"):
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static/')
+    ]
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+elif (os.getenv("ENVIRONMENT") == 'PROD'):
+    MEDIA_ROOT = '/var/www/html/Morea/media'
+    STATIC_ROOT = '/var/www/html/Morea/static'
+
+
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

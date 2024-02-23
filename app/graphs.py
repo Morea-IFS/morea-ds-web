@@ -3,6 +3,7 @@ import datetime
 import plotly.express as px
 import pandas as pd
 from .models import Device, Data, Graph
+from django.conf import settings
 
 
 def generateAllMotes24hRaw():
@@ -11,7 +12,7 @@ def generateAllMotes24hRaw():
             type=n).values_list('id', flat=True))
         dataFrameList = []
 
-        mediaRoot = 'media/'
+        mediaRoot = settings.MEDIA_ROOT
         if (n == 1):
             mediaPath = f'graphs/allWMoteDevices24hRaw.html'
             collectionUnit = 'Consumo(L)'
