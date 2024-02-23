@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'morea_ds.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': os.getenv("DBTYPE"),
         'NAME': os.getenv("DBNAME"),
         'USER': os.getenv("DBUSER"),
         'PASSWORD': os.getenv("DBPASSWORD"),
