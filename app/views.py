@@ -1,3 +1,4 @@
+from .graphs import generateAllMotes24hRaw
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -8,7 +9,6 @@ from .models import Device, Data, Graph, ExtendUser
 # Create your views here.
 
 # Render
-from .graphs import generateAllMotes24hRaw
 
 
 def index(request):
@@ -35,6 +35,7 @@ def members(request):
 
 
 def news(request):
+
     return render(request, 'news.html')
 
 # API

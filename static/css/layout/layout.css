@@ -1,9 +1,8 @@
 .content {
 	display: flex;
 	justify-content: center;
-	align-items: center;
 	align-self: center;
-	max-width: 1700px;
+	max-width: 1536px;
 	width: 100%;
 	min-height: calc(100vh - var(--height-header) - var(--height-footer));
 	margin-top: var(--height-header);
