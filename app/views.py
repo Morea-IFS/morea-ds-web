@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
 from .models import Device, Data, Graph, ExtendUser, New
+from django.conf import settings
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -41,6 +42,8 @@ def news(request):
     internNews = New.objects.select_related(
         'user').order_by('created_at').reverse()
     gitToken = os.getenv("GITTOKEN")
+
+    print(settings.MEDIA_ROOT)
 
     return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
