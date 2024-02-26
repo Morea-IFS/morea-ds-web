@@ -20,10 +20,8 @@
       <div class="new_container">
         <div class="profile_container">
           <img src="{% get_media_prefix %}{{new.user.profile_photo}}" alt="Profile Image">
-          <div class="new_name_date">
-            <h3>{{new.user.first_name}} {{new.user.last_name}}</h3>
-            <p>{{new.created_at}}</p>
-          </div>
+          <h3>{{new.user.first_name}} {{new.user.last_name}}</h3>
+          <p>{{new.created_at}}</p>
         </div>
         <p>{{ new.message }}</p>
       </div>
