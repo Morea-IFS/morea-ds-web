@@ -9,7 +9,7 @@ from django.conf import settings
 def generateAllMotes24hRaw():
     for n in range(1, 3):
         idList = list(Device.objects.filter(
-            type=n).values_list('id', flat=True))
+            type=n, is_authorized=True).values_list('id', flat=True))
         dataFrameList = []
 
         mediaRoot = settings.MEDIA_ROOT

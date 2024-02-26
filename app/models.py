@@ -37,6 +37,7 @@ class Device(models.Model):
     name = models.CharField(max_length=255, null=True)
     type = models.IntegerField(
         choices=DeviceTypes.choices, default=DeviceTypes.none)
+    is_authorized = models.BooleanField(default=False)
     mac_address = models.CharField(
         max_length=255, null=True, blank=True, unique=True)
     section = models.CharField(max_length=255, null=True, blank=True)
