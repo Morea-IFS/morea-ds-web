@@ -81,22 +81,23 @@ def getDeviceIp(request):
         deviceIp = request.POST["deviceIp"]
         apiToken = request.POST["apiToken"]
 
-    if Device.objects.all().filter(id=deviceId).exists():
-        if Device.objects.get(id=deviceId).api_token == apiToken:
-            if deviceId and deviceIp:
-                deviceObject = Device.objects.get(id=deviceId)
-                deviceObject.ip_address = str(deviceIp)
-                deviceObject.save()
-
-                print(deviceObject.name)
-
-                return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'ip not received.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'api token does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
+    if not Device.objects.all().filter(id=deviceId).exists():
         return Response({'message': 'device does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not Device.objects.get(id=deviceId).api_token == apiToken:
+        return Response({'message': 'api token does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not Device.objects.get(id=deviceId).is_authorized == True:
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    if deviceId and deviceIp:
+        deviceObject = Device.objects.get(id=deviceId)
+        deviceObject.ip_address = str(deviceIp)
+        deviceObject.save()
+
+        return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'missing deviceId or deviceIp.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -106,26 +107,29 @@ def getDeviceData(request):
         apiToken = request.POST["apiToken"]
         volume = request.POST["volume"]
 
-    if Device.objects.all().filter(id=deviceId).exists():
-        if Device.objects.get(id=deviceId).api_token == apiToken:
-            if deviceId and volume:
-                device = Device.objects.get(id=str(deviceId))
-                total = Data.objects.all().filter(
-                    device=str(deviceId)).order_by('id').reverse()
-
-                if (total):
-                    saveData = Data(device=device,
-                                    last_collection=float(volume), total=(float(total[0].total) + float(volume)))
-                    saveData.save()
-                else:
-                    saveData = Data(device=device,
-                                    last_collection=float(volume), total=float(volume))
-                    saveData.save()
-
-                return Response({'message': 'data received.'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
-    else:
+    if not Device.objects.all().filter(id=deviceId).exists():
         return Response({'message': 'device does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if not Device.objects.get(id=deviceId).api_token == apiToken:
+        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not Device.objects.get(id=deviceId).is_authorized == True:
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    if deviceId and volume:
+        device = Device.objects.get(id=str(deviceId))
+        total = Data.objects.all().filter(
+            device=str(deviceId)).order_by('id').reverse()
+
+        if (total):
+            saveData = Data(device=device,
+                            last_collection=float(volume), total=(float(total[0].total) + float(volume)))
+            saveData.save()
+        else:
+            saveData = Data(device=device,
+                            last_collection=float(volume), total=float(volume))
+            saveData.save()
+
+        return Response({'message': 'data received.'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
