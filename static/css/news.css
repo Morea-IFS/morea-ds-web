@@ -28,6 +28,7 @@
 
 .new_container > p {
 	text-indent: 32px;
+	word-break: break-all;
 }
 
 .profile_container {
@@ -41,4 +42,21 @@
 	width: 24px;
 	height: 24px;
 	border-radius: 100%;
+}
+
+.buttonMore {
+	display: flex;
+	background: var(--color-blue);
+	border: 1px solid var(--border-trasparent2);
+	outline: none;
+	padding: 8px 20px;
+	border-radius: 20px;
+	color: var(--color-main);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-weight: 600;
+}
+
+.buttonMore:hover {
+	transform: translateY(-5px);
 }
