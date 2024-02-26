@@ -20,8 +20,10 @@
       <div class="new_container">
         <div class="profile_container">
           <img src="{% get_media_prefix %}{{new.user.profile_photo}}" alt="Profile Image">
-          <h3>{{new.user.first_name}} {{new.user.last_name}}</h3>
-          <p>{{new.created_at}}</p>
+          <div class="new_name_date">
+            <h3>{{new.user.first_name}} {{new.user.last_name}}</h3>
+            <p>{{new.created_at}}</p>
+          </div>
         </div>
         <p>{{ new.message }}</p>
       </div>
@@ -31,10 +33,14 @@
   <div class="news_container">
     <h2>Dashboard</h2>
     <div id="dashboard_news" class="news"></div>
+    <a style="color: #fff; text-decoration: none; 
+    align-self: center;" href="https://github.com/Morea-IFS/morea-ds-web/commits/main/"><button class="buttonMore">Ver Todos</button></a>
   </div>
   <div class="news_container">
     <h2>IoT</h2>
     <div id="iot_news" class="news"></div>
+    <a style="color: #fff; text-decoration: none; 
+    align-self: center;" href="https://github.com/Morea-IFS/morea-ds-iot/commits/main/"><button class="buttonMore">Ver Todos</button></a>
   </div>
   <div id="git_token" aria-token="{{gitToken}}" style="display: none;"></div>
   <script src="{% static 'js/news.js' %}"></script>
