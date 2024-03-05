@@ -57,7 +57,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'morea_ds.urls'
 
 CRONJOBS = [
-    ('0 0 * * *', 'app.graphs.generateAllMotes24hRaw')
+        ('0 0 * * *', 'app.graphs.generateAllMotes24hRaw')
 ]
 
 TEMPLATES = [
@@ -154,7 +154,7 @@ elif (os.getenv("ENVIRONMENT") == 'PROD'):
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'static/')
     ]
-    MEDIA_ROOT = '/var/www/html/Morea/media'
+    MEDIA_ROOT = '/var/www/html/Morea/media/'
     STATIC_ROOT = '/var/www/html/Morea/static'
 
 
