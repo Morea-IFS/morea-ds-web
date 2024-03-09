@@ -12,3 +12,4 @@ dev.py
 static/graphs/*
 media/graphs/*
 media/profile/*
+venv
