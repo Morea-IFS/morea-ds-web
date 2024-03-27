@@ -6,7 +6,7 @@ async function getNews(url, newsDiv) {
 	let NewsHTML = ""
 
 	//	Fetch Data
-	const News = await fetch(`${url}`, {
+	const News = await fetch(`${url}?per_page=10`, {
 		headers: {
 			"X-GitHub-Api-Version": "2022-11-28",
 			Authorization: `Bearer ${gitToken}`,
