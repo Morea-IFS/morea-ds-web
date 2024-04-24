@@ -82,13 +82,13 @@ def getDeviceIp(request):
         apiToken = request.POST["apiToken"]
 
     if not Device.objects.all().filter(id=deviceId).exists():
-        return Response({'message': 'device does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     if not Device.objects.get(id=deviceId).api_token == apiToken:
-        return Response({'message': 'api token does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     if not Device.objects.get(id=deviceId).is_authorized == True:
-        return Response({'message': 'device not authorized.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     if deviceId and deviceIp:
         deviceObject = Device.objects.get(id=deviceId)
@@ -108,13 +108,13 @@ def getDeviceData(request):
         volume = request.POST["volume"]
 
     if not Device.objects.all().filter(id=deviceId).exists():
-        return Response({'message': 'device does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     if not Device.objects.get(id=deviceId).api_token == apiToken:
         return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     if not Device.objects.get(id=deviceId).is_authorized == True:
-        return Response({'message': 'device not authorized.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     if deviceId and volume:
         device = Device.objects.get(id=str(deviceId))
