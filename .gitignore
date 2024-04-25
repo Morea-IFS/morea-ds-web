@@ -6,6 +6,7 @@ morea_ds/__pycache__/
 db.sqlite3
 
 .env
+*:Zone.Identifier
 
 env/
 dev.py
