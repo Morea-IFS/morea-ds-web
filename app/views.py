@@ -133,3 +133,15 @@ def getDeviceData(request):
         return Response({'message': 'data received.'}, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
+
+def page_in_erro403(request, exception):
+    return render(request, 'error_403.html', status=403)
+
+def page_in_erro404(request, exception):
+    return render(request, 'error_404.html', status=404)
+
+def page_in_erro500(request):
+    return render(request, 'error_500.html', status=500)
+
+def page_in_erro503(request):
+    return render(request, 'error_503.html', status=503)

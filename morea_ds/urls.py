@@ -26,3 +26,8 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+
+handler403 = 'app.views.page_in_erro403'
+handler404 = 'app.views.page_in_erro404'
+handler500 = 'app.views.page_in_erro500'
+handler503 = 'app.views.page_in_erro503'
