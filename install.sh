@@ -47,8 +47,8 @@ echo "Estaticos Copiados!"
 echo "Iniciando Configuração do Web Server"
 read -p “Porta para hospedar o Serviço: “ NGINXPORT
 read -p “Nome no qual o Nginx escutara o request (localhost, domain.net, 192.168.1.1, etc...): “ NGINXDOMAIN
-sed -i '3s/CHANGE-PORT/$NGINXPORT/' ./config/morea.conf
-sed -i '3s/CHANGE-DOMAIN/$NGINXDOMAIN/' ./config/morea.conf
-sed -i '3s/CHANGE-STATIC/$STATICFOLDER/' ./config/morea.conf
+sed -i 's/CHANGE-PORT/$NGINXPORT/' ./config/morea.conf
+sed -i 's/CHANGE-DOMAIN/$NGINXDOMAIN/' ./config/morea.conf
+sed -i 's/CHANGE-STATIC/$STATICFOLDER/' ./config/morea.conf
 cp ./config/morea.conf /etc/nginx/sites-available
 ln -s /etc/nginx/sites-available/morea.conf /etc/nginx/sites-enabled/
