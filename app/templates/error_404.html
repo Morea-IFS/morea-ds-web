@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/errors.css' %}">
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-morea-ds.png' %}">
+    <title>Erro 404</title>
+</head>
+<body>
+    <header>
+        <div class="header">
+            <div class="pointerkk">
+                <a href="{% url 'Home' %}"><img src="{% static 'assets/images/logo-morea-ds.png' %}" alt="Logo Morea"></a>
+            </div>
+        </div>
+    </header>
+    <div class="centerkk">
+        <h1 class="titleErro">
+            Erro 404 
+            <br> 
+            Pagina Não Encontrada
+        </h1>
+        <p class="text">
+            Opa Não Encontramos A Pagina &#58;&#40;
+            <br>
+            Clique No Botão Abaixo Para Voltar Para O Inicio
+        </p>
+        <a href="{% url 'Home' %}">
+            <button class="botão">Voltar</button>
+        </a>
+    </div>
+</body>
+</html>
