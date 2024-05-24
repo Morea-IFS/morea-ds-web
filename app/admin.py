@@ -15,7 +15,8 @@ class CustomUserAdmin(UserAdmin):
                 'fields': (
                     'profile_photo',
                     'description',
-                    'is_advisor'
+                    'is_advisor',
+                    'lattes_url'
                 ),
             },
         ),

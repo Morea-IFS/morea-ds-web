@@ -22,8 +22,9 @@ def dashboard(request):
 
     allWMotes24hRaw = Graph.objects.get(type=1)
     allEMotes24hRaw = Graph.objects.get(type=2)
+    allGMotes24hRaw = Graph.objects.get(type=3)
 
-    return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw})
+    return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw, 'gMote': allGMotes24hRaw})
 
 
 def members(request):
