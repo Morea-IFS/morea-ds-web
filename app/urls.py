@@ -25,4 +25,11 @@ urlpatterns = [
     path('dashboard', views.dashboard, name="Dashboard"),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
+    path('device_create', views.device_create, name="Create Device"),
+    path('device_list', views.device_list, name='device_list'),
+    path('device_list/', views.device_list, name='device_list'),
+    path('device_detail/<int:device_id>/', views.device_detail, name='device_detail'),
+    path('edit/<int:device_id>/', views.edit_device, name='edit_device'),
+    
 ]
+

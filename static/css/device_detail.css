@@ -1,0 +1,28 @@
+.container {
+    margin: 4rem 30px;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.device-details {
+    list-style-type: none;
+    padding: 0;
+}
+
+.device-details li {
+    margin-bottom: 1rem;
+}
+
+.device-details li strong {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 4rem 16px;
+    }
+}

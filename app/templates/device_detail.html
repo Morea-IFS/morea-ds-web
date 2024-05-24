@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block title %}Morea | Detalhes do Dispositivo{% endblock %}
+{% block stylesCustom %}
+  <link rel="stylesheet" href="{% static 'css/device_detail.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Detalhes do Dispositivo</h1>
+  <ul class="device-details">
+    <li>
+      <strong>ID:</strong> {{ device.id }}
+    </li>
+    <li>
+      <strong>Nome:</strong> {{ device.name }}
+    </li>
+    <li>
+      <strong>Tipo:</strong> {{ device.type }}
+    </li>
+    <li>
+      <strong>Autorizado:</strong> {{ device.is_authorized }}
+    </li>
+    <li>
+      <strong>Endereço MAC:</strong> {{ device.mac_address }}
+    </li>
+    <li>
+      <strong>Seção:</strong> {{ device.section }}
+    </li>
+    <li>
+      <strong>Localização:</strong> {{ device.location }}
+    </li>
+    <li>
+      <strong>Endereço IP:</strong> {{ device.ip_address }}
+    </li>
+    <li>
+      <strong>Token da API:</strong> {{ device.api_token }}
+    </li>
+  </ul>
+</div>
+{% endblock %}

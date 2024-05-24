@@ -32,8 +32,7 @@ class ExtendUser(AbstractUser):
 
 
 class Device(models.Model):
-    id = models.CharField(primary_key=True, max_length=255,
-                          blank=False, null=False)
+    id = models.CharField(primary_key=True, max_length=255, blank=False, null=False)
     name = models.CharField(max_length=255, null=True)
     type = models.IntegerField(
         choices=DeviceTypes.choices, default=DeviceTypes.none)

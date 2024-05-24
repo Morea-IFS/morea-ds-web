@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block title %}Morea | Editar Dispositivo{% endblock %}
+
+{% block stylesCustom %}
+<link rel="stylesheet" href="{% static 'css/edit_device.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Editar Dispositivo</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar</button>
+    </form>
+
+    <a href="{% url 'device_list' %}">Voltar para lista de dispositivos</a>
+</div>
+{% endblock %}
