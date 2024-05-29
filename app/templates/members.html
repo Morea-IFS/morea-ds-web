@@ -23,6 +23,9 @@
             <h3>{{member.username}}</h3>
           {% endif %}
           <p>{{member.description}}</p>
+          {% if member.lattes_url %}
+          <p><a href="{{member.lattes_url}}" target="_blank">Currículo Lattes</a></p>
+          {% endif %}
         </div>
       {% endfor %}
     </div>
@@ -39,6 +42,9 @@
             <h3>{{member.username}}</h3>
           {% endif %}
           <p>{{member.description}}</p>
+          {% if member.lattes_url %}
+          <p><a href="{{member.lattes_url}}" target="_blank">Currículo Lattes</a></p>
+          {% endif %}
         </div>
       {% endfor %}
     </div>

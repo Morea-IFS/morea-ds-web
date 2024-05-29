@@ -9,13 +9,15 @@ from django.contrib.auth.models import AbstractUser
 class DeviceTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     water = 1, 'Water',
-    energy = 2, 'Energy'
+    energy = 2, 'Energy',
+    gas = 3, 'Gas'
 
 
 class GraphsTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
     allEMoteDevices24hRaw = 2, 'All EMote Devices | 24h | Raw',
+    allGMoteDevices24hRaw = 3, 'All GMote Devices | 24h | Raw'
 
 
 class ExtendUser(AbstractUser):
@@ -23,6 +25,7 @@ class ExtendUser(AbstractUser):
         upload_to='profile/', default='defaults/profile_default.png')
     description = models.CharField(max_length=256, blank=True)
     is_advisor = models.BooleanField(default=False)
+    lattes_url = models.URLField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         if (self.first_name) and (self.last_name):
