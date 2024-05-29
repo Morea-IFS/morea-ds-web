@@ -14,3 +14,4 @@ static/graphs/*
 media/graphs/*
 media/profile/*
 venv
+pyvenv.cfg

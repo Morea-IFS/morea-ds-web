@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <title>User Registration</title>
+</head>
+<body>
+<div class="home">
+    <div class="home__content">
+        <h1 class="textWhatMorea">{% if user_update %}Update User{% else %}User Registration{% endif %}</h1>
+        {% if user_update and  not user_update.is_superuser%}
+            <div class="logout-container">
+                <a class="logout" href="{% url 'Logout' %}">Logout</a>
+            </div>
+        {% endif %}
+        <form action="{% if user_update %}{% url 'UpdateUser' user_update.id %}{% else %}{% url 'Register' %}{% endif %}" method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="{{ user_update.username }}">
+            </div>
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user_update.first_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user_update.last_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user_update.email }}" required>
+            </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password">
+                    {% if user_update %}
+                        <small>Leave blank to keep the current password</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">confirm password:</label>
+                    <input type="password" id="confirm_password" name="confirm_password">
+                </div>
+                <p id="error_confirm"></p>
+            {% endif %}
+            <div class="form-group">
+                <label for="profile_photo">Profile Photo:</label>
+                <input type="file" id="profile_photo" name="profile_photo">
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description">{{ user_update.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="is_advisor">Is Advisor:</label>
+                <input type="checkbox" id="is_advisor" name="is_advisor" {% if user_update.is_advisor %}checked{% endif %}>
+            </div>
+            {% if errors %}
+                {% for error in errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <input type="submit" value="{% if user_update %}Update{% else %}Register{% endif %}" class="buttonMore">
+        </form>
+        <div class="message">{{ message }}</div>
+    </div>
+</div>
+<script src="{% static 'js/register.js' %}"></script>
+</body>
+</html>
