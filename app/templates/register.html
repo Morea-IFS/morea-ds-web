@@ -35,18 +35,19 @@
                 <input type="email" id="email" name="email" value="{{ user_update.email }}" required>
             </div>
 
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password">
-                    {% if user_update %}
-                        <small>Leave blank to keep the current password</small>
-                </div>
-                <div class="form-group">
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+                {% if user_update %}
+                    <small>Leave blank to keep the current password</small>
+                {% endif %}
+                    </div>
+            <div class="form-group">
                     <label for="confirm_password">confirm password:</label>
                     <input type="password" id="confirm_password" name="confirm_password">
-                </div>
+            </div>
                 <p id="error_confirm"></p>
-            {% endif %}
+
             <div class="form-group">
                 <label for="profile_photo">Profile Photo:</label>
                 <input type="file" id="profile_photo" name="profile_photo">

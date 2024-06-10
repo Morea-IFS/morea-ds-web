@@ -15,3 +15,6 @@ media/graphs/*
 media/profile/*
 venv
 pyvenv.cfg
+.idea
+Lib
+Scripts
