@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/adminDashboard.css' %}">
+</head>
+<body>
+<div class="dashboard">
+    <h1>Admin Dashboard</h1>
+    <ul>
+        <li><a href="{% url 'Register' %}">Register a User</a></li>
+        <li><a href="{% url 'ListMembers' %}">View Members</a></li>
+        <li><a href="{% url 'UpdateUser' request.user.id %}">Update Your Account</a></li>
+        <li> <a href="{% url 'Logout' %}">Logout</a></li>
+    </ul>
+</div>
+</body>
+</html>

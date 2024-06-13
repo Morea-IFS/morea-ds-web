@@ -14,3 +14,7 @@ static/graphs/*
 media/graphs/*.html
 media/profile/*
 venv
+pyvenv.cfg
+.idea
+Lib
+Scripts

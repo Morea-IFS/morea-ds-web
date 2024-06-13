@@ -23,6 +23,12 @@ urlpatterns = [
     path('api/get-device-data', views.getDeviceData, name='Receive Data'),
     path('', views.index, name="Home"),
     path('dashboard', views.dashboard, name="Dashboard"),
+    path('admin-dashboard', views.admin_dashboard, name='AdminDashboard'),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
+    path('register', views.register_user, name='Register'),
+    path('login', views.login_user, name='Login'),
+    path('logout', views.logout_user, name='Logout'),
+    path('listmembers', views.listMembersUpdate, name='ListMembers'),
+    path('update/<int:id_user>/', views.update_user, name='UpdateUser')
 ]
