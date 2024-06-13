@@ -1,3 +1,4 @@
+from .graphs import generateAllMotes24hRaw
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
@@ -14,6 +15,7 @@ from django.contrib.auth import authenticate, login, logout
 
 load_dotenv()
 
+from .forms import DeviceForm
 
 # Create your views here.
 
@@ -65,6 +67,66 @@ def news(request):
     return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
 
+def device_create(request):
+    if request.method == 'POST':
+        form = DeviceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('device_list')
+    else:
+        form = DeviceForm()
+    return render(request, 'device_create.html', {'form': form})
+
+
+def device_list(request):
+    filter_type = request.GET.get('filter_type', '')
+    filter_location = request.GET.get('filter_location', '')
+    filter_section = request.GET.get('filter_section', '')
+    filter_authorized = request.GET.get('filter_authorized', '')
+
+    devices = Device.objects.all()
+
+    if filter_type:
+        devices = devices.filter(type=filter_type)
+    if filter_location:
+        devices = devices.filter(location=filter_location)
+    if filter_section:
+        devices = devices.filter(section=filter_section)
+    if filter_authorized:
+        devices = devices.filter(is_authorized=(filter_authorized == 'true'))
+
+    locations = Device.objects.values_list('location', flat=True).distinct()
+    sections = Device.objects.values_list('section', flat=True).distinct()
+
+    context = {
+        'devices': devices,
+        'locations': locations,
+        'sections': sections,
+        'filter_type': filter_type,
+        'filter_location': filter_location,
+        'filter_section': filter_section,
+        'filter_authorized': filter_authorized,
+    }
+    return render(request, 'device_list.html', context)
+
+def edit_device(request, device_id):
+    device = Device.objects.get(pk=device_id)
+    if request.method == 'POST':
+        form = DeviceForm(request.POST, instance=device)
+        if form.is_valid():
+            form.save()
+            return redirect('device_list')
+    else:
+        form = DeviceForm(instance=device)
+
+    context = {'form': form, 'device': device}
+    return render(request, 'edit_device.html', context)
+        
+
+def device_detail(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    return render(request, 'device_detail.html', {'device': device})
+  
 # API
 
 

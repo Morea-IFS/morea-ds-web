@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block title %}Morea | Cadastro de Dispositivo{% endblock %}
+
+{% block stylesCustom %}
+  <link rel="stylesheet" href="{% static 'css/device_form.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Cadastro de Dispositivo</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.errors %}
+          <div class="error">{{ field.errors }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit">Salvar</button>
+  </form>
+</div>
+{% endblock %}

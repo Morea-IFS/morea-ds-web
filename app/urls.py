@@ -26,9 +26,15 @@ urlpatterns = [
     path('admin-dashboard', views.admin_dashboard, name='AdminDashboard'),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
+    path('device_create', views.device_create, name="Create Device"),
+    path('device_list', views.device_list, name='device_list'),
+    path('device_list/', views.device_list, name='device_list'),
+    path('device_detail/<int:device_id>/', views.device_detail, name='device_detail'),
+    path('edit/<int:device_id>/', views.edit_device, name='edit_device'),
     path('register', views.register_user, name='Register'),
     path('login', views.login_user, name='Login'),
     path('logout', views.logout_user, name='Logout'),
     path('listmembers', views.listMembersUpdate, name='ListMembers'),
     path('update/<int:id_user>/', views.update_user, name='UpdateUser')
 ]
+
