@@ -1,5 +1,3 @@
-
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -21,6 +19,11 @@ class GraphsTypes(models.IntegerChoices):
     allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
     allEMoteDevices24hRaw = 2, 'All EMote Devices | 24h | Raw',
     allGMoteDevices24hRaw = 3, 'All GMote Devices | 24h | Raw'
+
+class AuthTypes(models.IntegerChoices):
+    pending = 0, 'Pending',
+    notAuthorized = 1, 'Not Authorized',
+    Authorized = 2, 'Authorized',
 
 
 class ExtendUser(AbstractUser):
@@ -55,7 +58,7 @@ class Device(models.Model):
     name = models.CharField(max_length=255, null=True)
     type = models.IntegerField(
         choices=DeviceTypes.choices, default=DeviceTypes.none)
-    is_authorized = models.BooleanField(default=False)
+    is_authorized = models.IntegerField(choices=AuthTypes.choices, default=AuthTypes.pending)
     mac_address = models.CharField(
         max_length=255, null=True, blank=True, unique=True)
     section = models.CharField(max_length=255, null=True, blank=True)
