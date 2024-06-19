@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0007_device_is_authorized'),
+        ('app', '0008_alter_device_id'),
     ]
 
     operations = [
