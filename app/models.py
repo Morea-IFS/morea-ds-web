@@ -32,15 +32,17 @@ class ExtendUser(AbstractUser):
     description = models.CharField(max_length=256, blank=True)
     is_advisor = models.BooleanField(default=False)
     lattes_url = models.URLField(max_length=200, blank=True, null=True)
+    email = models.CharField(max_length=200, blank=False, null=False, unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._meta.get_field('first_name').blank = False
         self._meta.get_field('last_name').blank = False
-        self._meta.get_field('email').blank = False
         self._meta.get_field('first_name').null = False
         self._meta.get_field('last_name').null = False
-        self._meta.get_field('email').null = False
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -50,7 +52,7 @@ class ExtendUser(AbstractUser):
         if (self.first_name) and (self.last_name):
             return f"{self.first_name} {self.last_name}"
         else:
-            return self.username
+            return self.email
 
 
 class Device(models.Model):
