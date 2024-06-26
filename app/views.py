@@ -229,9 +229,10 @@ def device_detail(request, device_id):
 # API
 
 @api_view(['POST'])
-def identifyDevice(request):
+def authenticateDevice(request):
     if request.method == 'POST':
         macAddress = request.POST['macAddress']
+        deviceIp = request.POST['deviceIp']
 
         if Device.objects.all().filter(mac_address=macAddress).exists():
             apiToken = uuid.uuid4()
@@ -240,46 +241,17 @@ def identifyDevice(request):
             device.api_token = str(apiToken)
             device.save()
 
-            return Response({'id': device.id, 'api_token': apiToken}, status=status.HTTP_200_OK)
+            return Response({'api_token': apiToken, 'deviceName': device.name}, status=status.HTTP_200_OK)
         else:
-            id = uuid.uuid4()
             apiToken = uuid.uuid4()
 
             try:
-                newDevice = Device(
-                    id=id, mac_address=macAddress, api_token=apiToken)
+                newDevice = Device(mac_address=macAddress, ip_address=deviceIp, api_token=apiToken)
                 newDevice.save()
             except:
                 return Response({'error': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'id': id, 'api_token': apiToken}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-def getDeviceIp(request):
-    if request.method == "POST":
-        deviceId = request.POST["deviceId"]
-        deviceIp = request.POST["deviceIp"]
-        apiToken = request.POST["apiToken"]
-
-    if not Device.objects.all().filter(id=deviceId).exists():
-        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-    if not Device.objects.get(id=deviceId).api_token == apiToken:
-        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    if not Device.objects.get(id=deviceId).is_authorized == True:
-        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    if deviceId and deviceIp:
-        deviceObject = Device.objects.get(id=deviceId)
-        deviceObject.ip_address = str(deviceIp)
-        deviceObject.save()
-
-        return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
-    else:
-        return Response({'message': 'missing deviceId or deviceIp.'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'api_token': apiToken}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def getDeviceData(request):

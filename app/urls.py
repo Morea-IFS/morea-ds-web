@@ -25,8 +25,7 @@ urlpatterns = [
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
     ## API related
-    path('api/get-device-ip', views.getDeviceIp, name='Receive IP'),
-    path('api/identify-device', views.identifyDevice, name='Identify Device'),
+    path('api/authenticate', views.authenticateDevice, name='Authenticate Device'),
     path('api/get-device-data', views.getDeviceData, name='Receive Data'),
     ## Devices related
     path('device-create', views.device_create, name="Create Device"),
