@@ -21,6 +21,7 @@ from .forms import DeviceForm
 
 # Render
 
+## General pages
 
 def index(request):
     return render(request, 'home.html')
@@ -33,13 +34,6 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw, 'gMote': allGMotes24hRaw})
 
-
-@login_required(login_url='/login')
-@user_passes_test(lambda u: u.is_superuser, login_url='/login')
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
-
-
 def members(request):
     advisors = ExtendUser.objects.all().filter(
         is_advisor=True).order_by('username')
@@ -51,14 +45,6 @@ def members(request):
     return render(request, 'members.html',
                   {'advisors': advisors, 'activeMembers': activeMembers, 'oldMembers': oldMembers})
 
-
-@user_passes_test(lambda u: u.is_superuser, login_url='/login')
-def listMembersUpdate(request):
-    if request.method == 'GET':
-        membersUpdate = ExtendUser.objects.all()
-        return render(request, 'listMembersUpdate.html', {'members': membersUpdate})
-
-
 def news(request):
     internNews = New.objects.select_related(
         'user').order_by('created_at').reverse()
@@ -66,6 +52,120 @@ def news(request):
 
     return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
+## User pages functions
+
+@login_required(login_url='/login')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login')
+def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/login')
+def listMembersUpdate(request):
+    if request.method == 'GET':
+        membersUpdate = ExtendUser.objects.all()
+        return render(request, 'listMembersUpdate.html', {'members': membersUpdate})
+
+#  registration, authentication and logout user
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/login')
+def register_user(request):
+    if request.method == 'POST':
+        errors = validate(request)
+        if errors:
+            return render(request, 'register.html', {'errors': errors})
+
+        username = request.POST['username']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        password = request.POST['password']
+        description = request.POST['description']
+        profile_photo = request.FILES.get('profile_photo')
+        is_advisor = False
+        if request.POST.get('is_advisor') == 'on':
+            is_advisor = True
+
+        user = ExtendUser.objects.create_user(username=username,
+                                              first_name=first_name,
+                                              last_name=last_name,
+                                              email=email,
+                                              password=password,
+                                              description=description,
+                                              profile_photo=profile_photo,
+                                              is_advisor=is_advisor
+                                              )
+        user.save()
+        return render(request, 'register.html', {'user': user, 'message': 'user successfully registered'})
+
+    return render(request, 'register.html')
+
+@login_required(login_url='/login')
+def update_user(request, id_user):
+    user = request.user
+    if not user.is_superuser:
+        id_user = user.id
+
+    user_update = get_object_or_404(ExtendUser, id=id_user)
+
+    if request.method == 'POST':
+        user_update.username = request.POST['username']
+        user_update.first_name = request.POST['first_name']
+        user_update.last_name = request.POST['last_name']
+        user_update.email = request.POST['email']
+        user_update.description = request.POST['description']
+        user_update.is_advisor = 'is_advisor' in request.POST
+        user_update.profile_photo = request.FILES.get('profile_photo')
+
+        if request.POST.get('password'):
+            user_update.set_password(request.POST['password'])
+
+        user_update.save()
+        return redirect('ListMembers')
+
+    return render(request, 'register.html', {'user_update': user_update})
+
+def login_user(request):
+    # login
+    user_auth = request.user
+
+    if request.method == 'POST':
+
+        email = request.POST['email']
+        password = request.POST['password']
+
+        try:
+            user_aux = ExtendUser.objects.get(email=email)
+        except ExtendUser.DoesNotExist:
+            return render(request, 'login.html', {'error': 'User not found'})
+
+        user = authenticate(request, username=user_aux.username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                if user.is_superuser:
+                    return redirect('AdminDashboard')
+                else:
+                    return redirect('UpdateUser', id_user=user.id)
+
+            else:
+                return render(request, 'login.html', {'error': 'User account is inactive'})
+        else:
+            return render(request, 'login.html', {'error': 'User or password incorrect'})
+
+    if user_auth.id is not None:
+        if user_auth.is_superuser:
+            return redirect('AdminDashboard')
+        else:
+            return redirect('UpdateUser', id_user=user_auth.id)
+
+    return render(request, 'login.html')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('Login')
+
+## Devices pages functions
 
 def device_create(request):
     if request.method == 'POST':
@@ -76,7 +176,6 @@ def device_create(request):
     else:
         form = DeviceForm()
     return render(request, 'device_create.html', {'form': form})
-
 
 def device_list(request):
     filter_type = request.GET.get('filter_type', '')
@@ -128,7 +227,6 @@ def device_detail(request, device_id):
     return render(request, 'device_detail.html', {'device': device})
   
 # API
-
 
 @api_view(['POST'])
 def identifyDevice(request):
@@ -217,107 +315,6 @@ def getDeviceData(request):
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-#  registration, authentication and logout user
-@user_passes_test(lambda u: u.is_superuser, login_url='/login')
-def register_user(request):
-    if request.method == 'POST':
-        errors = validate(request)
-        if errors:
-            return render(request, 'register.html', {'errors': errors})
-
-        username = request.POST['username']
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        email = request.POST['email']
-        password = request.POST['password']
-        description = request.POST['description']
-        profile_photo = request.FILES.get('profile_photo')
-        is_advisor = False
-        if request.POST.get('is_advisor') == 'on':
-            is_advisor = True
-
-        user = ExtendUser.objects.create_user(username=username,
-                                              first_name=first_name,
-                                              last_name=last_name,
-                                              email=email,
-                                              password=password,
-                                              description=description,
-                                              profile_photo=profile_photo,
-                                              is_advisor=is_advisor
-                                              )
-        user.save()
-        return render(request, 'register.html', {'user': user, 'message': 'user successfully registered'})
-
-    return render(request, 'register.html')
-
-
-@login_required(login_url='/login')
-def update_user(request, id_user):
-    user = request.user
-    if not user.is_superuser:
-        id_user = user.id
-
-    user_update = get_object_or_404(ExtendUser, id=id_user)
-
-    if request.method == 'POST':
-        user_update.username = request.POST['username']
-        user_update.first_name = request.POST['first_name']
-        user_update.last_name = request.POST['last_name']
-        user_update.email = request.POST['email']
-        user_update.description = request.POST['description']
-        user_update.is_advisor = 'is_advisor' in request.POST
-        user_update.profile_photo = request.FILES.get('profile_photo')
-
-        if request.POST.get('password'):
-            user_update.set_password(request.POST['password'])
-
-        user_update.save()
-        return redirect('ListMembers')
-
-    return render(request, 'register.html', {'user_update': user_update})
-
-
-def login_user(request):
-    # login
-    user_auth = request.user
-
-    if request.method == 'POST':
-
-        email = request.POST['email']
-        password = request.POST['password']
-
-        try:
-            user_aux = ExtendUser.objects.get(email=email)
-        except ExtendUser.DoesNotExist:
-            return render(request, 'login.html', {'error': 'User not found'})
-
-        user = authenticate(request, username=user_aux.username, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                if user.is_superuser:
-                    return redirect('AdminDashboard')
-                else:
-                    return redirect('UpdateUser', id_user=user.id)
-
-            else:
-                return render(request, 'login.html', {'error': 'User account is inactive'})
-        else:
-            return render(request, 'login.html', {'error': 'User or password incorrect'})
-
-    if user_auth.id is not None:
-        if user_auth.is_superuser:
-            return redirect('AdminDashboard')
-        else:
-            return redirect('UpdateUser', id_user=user_auth.id)
-
-    return render(request, 'login.html')
-
-
-def logout_user(request):
-    logout(request)
-    return redirect('Login')
 
 
 # Exceptions

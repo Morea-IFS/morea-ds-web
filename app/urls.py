@@ -18,23 +18,27 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('api/get-device-ip', views.getDeviceIp, name='Receive IP'),
-    path('api/identify-device', views.identifyDevice, name='Identify Device'),
-    path('api/get-device-data', views.getDeviceData, name='Receive Data'),
+    ## General
     path('', views.index, name="Home"),
     path('dashboard', views.dashboard, name="Dashboard"),
     path('admin-dashboard', views.admin_dashboard, name='AdminDashboard'),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
-    path('device_create', views.device_create, name="Create Device"),
-    path('device_list', views.device_list, name='device_list'),
-    path('device_list/', views.device_list, name='device_list'),
-    path('device_detail/<int:device_id>/', views.device_detail, name='device_detail'),
+    ## API related
+    path('api/get-device-ip', views.getDeviceIp, name='Receive IP'),
+    path('api/identify-device', views.identifyDevice, name='Identify Device'),
+    path('api/get-device-data', views.getDeviceData, name='Receive Data'),
+    ## Devices related
+    path('device-create', views.device_create, name="Create Device"),
+    path('device-list', views.device_list, name='device_list'),
+    path('device-list/', views.device_list, name='device_list'),
+    path('device-detail/<int:device_id>/', views.device_detail, name='device_detail'),
     path('edit/<int:device_id>/', views.edit_device, name='edit_device'),
+    ## Members related
     path('register', views.register_user, name='Register'),
     path('login', views.login_user, name='Login'),
     path('logout', views.logout_user, name='Logout'),
-    path('listmembers', views.listMembersUpdate, name='ListMembers'),
+    path('list-members', views.listMembersUpdate, name='ListMembers'),
     path('update/<int:id_user>/', views.update_user, name='UpdateUser')
 ]
 
