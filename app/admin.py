@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Device, Data, ExtendUser, Graph, New
+from .models import Device, Data, ExtendUser, ProcessedData, Graph, New
 
 # Register your models here.
 
@@ -31,6 +31,8 @@ class DevicesAdmin(admin.ModelAdmin):
 class DataAdmin(admin.ModelAdmin):
     list_display = ['id', 'device', 'type', 'last_collection', 'total', 'collect_date']
 
+class ProcessedDataAdmin(admin.ModelAdmin):
+    list_display = ['id', 'device', 'interval', 'mean', 'median', 'std', 'cv', 'max', 'min', 'fq', 'tq', 'created_at']
 
 class GraphsAdmin(admin.ModelAdmin):
     list_display = ['id', 'device', 'type', 'file_path']
@@ -43,5 +45,6 @@ class NewsAdmin(admin.ModelAdmin):
 admin.site.register(ExtendUser, CustomUserAdmin)
 admin.site.register(Device, DevicesAdmin)
 admin.site.register(Data, DataAdmin)
+admin.site.register(ProcessedData, ProcessedDataAdmin)
 admin.site.register(Graph, GraphsAdmin)
 admin.site.register(New, NewsAdmin)

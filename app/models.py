@@ -28,6 +28,10 @@ class AuthTypes(models.IntegerChoices):
 class DataTypes(models.IntegerChoices):
     notSelected = 0, "Not Selected"
     volume = 1, "Volume/L"
+    
+class IntervalTypes(models.IntegerChoices):
+    notSelected = 0, 'Not Selected',
+    hourly = 1, "Houly"
 
 
 class ExtendUser(AbstractUser):
@@ -91,6 +95,7 @@ class Data(models.Model):
 
 class ProcessedData(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, blank=True)
+    interval = models.IntegerField(default=IntervalTypes.notSelected, choices=IntervalTypes.choices)
     mean = models.FloatField(blank=True)
     median = models.FloatField(blank=True)
     std = models.FloatField(blank=True) # standard deviation
