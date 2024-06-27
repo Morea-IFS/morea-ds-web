@@ -8,6 +8,7 @@ import uuid
 from .models import Device, Data, Graph, ExtendUser, New
 import os
 from dotenv import load_dotenv
+import json
 
 from .validation import validate
 
@@ -231,8 +232,10 @@ def device_detail(request, device_id):
 @api_view(['POST'])
 def authenticateDevice(request):
     if request.method == 'POST':
-        macAddress = request.POST['macAddress']
-        deviceIp = request.POST['deviceIp']
+        data = json.loads(request.body)
+        macAddress = data['macAddress']
+        deviceIp = data['deviceIp']
+        
 
         if Device.objects.all().filter(mac_address=macAddress).exists():
             apiToken = uuid.uuid4()
@@ -256,24 +259,22 @@ def authenticateDevice(request):
 @api_view(['POST'])
 def getDeviceData(request):
     if request.method == "POST":
-        deviceId = request.POST["deviceId"]
-        apiToken = request.POST["apiToken"]
-        volume = request.POST["volume"]
+        data = json.loads(request.body)
+        apiToken = data["apiToken"]
+        volume = data["volume"]
 
-    if not Device.objects.all().filter(id=deviceId).exists():
-        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+    # Device verification
+    if not Device.objects.all().filter(api_token=apiToken).exists():
+        return Response({'message': 'invalid api token.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not Device.objects.get(id=deviceId).api_token == apiToken:
-        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    if not Device.objects.get(id=deviceId).is_authorized == True:
+    if not Device.objects.get(api_token=apiToken).is_authorized == 2:
         return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if deviceId and volume:
-        device = Device.objects.get(id=str(deviceId))
+    if apiToken and volume is not None:
+        device = Device.objects.get(api_token=apiToken)
         total = Data.objects.all().filter(
-            device=str(deviceId)).order_by('id').reverse()
-
+            device=device).order_by('id').reverse()
+    
         if (total):
             saveData = Data(device=device,
                             last_collection=float(volume), total=(float(total[0].total) + float(volume)))
@@ -289,7 +290,7 @@ def getDeviceData(request):
 
 
 
-# Exceptions
+## Exceptions
 def page_in_erro403(request, exception):
     return render(request, 'error_403.html', status=403)
 

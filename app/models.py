@@ -27,7 +27,7 @@ class AuthTypes(models.IntegerChoices):
 
 class DataTypes(models.IntegerChoices):
     notSelected = 0, "Not Selected"
-    liters = 1, "Liters"
+    volume = 1, "Volume/L"
 
 
 class ExtendUser(AbstractUser):
