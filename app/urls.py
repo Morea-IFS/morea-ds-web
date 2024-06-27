@@ -26,7 +26,7 @@ urlpatterns = [
     path('news', views.news, name="News"),
     ## API related
     path('api/authenticate', views.authenticateDevice, name='Authenticate Device'),
-    path('api/get-device-data', views.getDeviceData, name='Receive Data'),
+    path('api/store-data', views.storeData, name='Receive Data'),
     ## Devices related
     path('device-create', views.device_create, name="Create Device"),
     path('device-list', views.device_list, name='device_list'),
