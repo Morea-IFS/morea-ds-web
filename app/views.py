@@ -260,7 +260,6 @@ def authenticateDevice(request):
 def storeData(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print(data)
         apiToken = data["apiToken"]
         measure = data["measure"]
     
