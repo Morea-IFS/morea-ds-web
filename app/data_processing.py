@@ -8,7 +8,7 @@ def hourlyDataProcessing():
 
 def processData(time):
     timeCounter = timezone.now() - timedelta(hours=time)
-    devices = Device.objects.all()
+    devices = Device.objects.all().filter(is_authorized=2)
 
     for device in devices:
         try:
