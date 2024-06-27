@@ -29,7 +29,7 @@ class DevicesAdmin(admin.ModelAdmin):
 
 
 class DataAdmin(admin.ModelAdmin):
-    list_display = ['id', 'device', 'last_collection', 'total', 'collect_date']
+    list_display = ['id', 'device', 'type', 'last_collection', 'total', 'collect_date']
 
 
 class GraphsAdmin(admin.ModelAdmin):

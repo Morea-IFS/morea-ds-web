@@ -25,6 +25,10 @@ class AuthTypes(models.IntegerChoices):
     notAuthorized = 1, 'Not Authorized',
     Authorized = 2, 'Authorized',
 
+class DataTypes(models.IntegerChoices):
+    notSelected = 0, "Not Selected"
+    volume = 1, "Volume/L"
+
 
 class ExtendUser(AbstractUser):
     profile_photo = models.ImageField(
@@ -56,7 +60,6 @@ class ExtendUser(AbstractUser):
 
 
 class Device(models.Model):
-    id = models.CharField(primary_key=True, max_length=255, blank=False, null=False)
     name = models.CharField(max_length=255, null=True)
     type = models.IntegerField(
         choices=DeviceTypes.choices, default=DeviceTypes.none)
@@ -80,6 +83,7 @@ class Device(models.Model):
 class Data(models.Model):
     device = models.ForeignKey(
         Device, on_delete=models.CASCADE, null=True, blank=True)
+    type = models.IntegerField(default=DataTypes.notSelected, choices=DataTypes.choices)
     last_collection = models.FloatField(
         null=True, blank=True)  # Litros/Hora no último minuto
     total = models.FloatField(default=0)  # Listros totais
