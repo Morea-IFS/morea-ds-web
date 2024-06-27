@@ -89,6 +89,17 @@ class Data(models.Model):
     total = models.FloatField(default=0)  # Listros totais
     collect_date = models.DateTimeField(auto_now_add=True)  # Data de coleta
 
+class ProcessedData(models.Model):
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, blank=True)
+    mean = models.FloatField(blank=True)
+    median = models.FloatField(blank=True)
+    std = models.FloatField(blank=True) # standard deviation
+    cv = models.FloatField(blank=True) # coefficient of variation
+    max = models.FloatField(blank=True)
+    min = models.FloatField(blank=True)
+    fq = models.FloatField(blank=True) # first quartile
+    tq = models.FloatField(blank=True) # third quartile
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Graph(models.Model):
     device = models.ForeignKey(
