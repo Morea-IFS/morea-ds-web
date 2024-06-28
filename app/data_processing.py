@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 import numpy
 
-def hourlyDataProcessing():
+def run():
     processData(1)
 
 def processData(time):
@@ -16,7 +16,7 @@ def processData(time):
                 device=device, collect_date__gte=timeCounter))
             # Função __gte = greater than or equal, compara a data.
             
-            if deviceData is not None:
+            if len(deviceData) != 0:
                 mean = numpy.mean(deviceData)
                 median = numpy.median(deviceData)
                 std = numpy.std(deviceData)
@@ -29,10 +29,9 @@ def processData(time):
                 processedData = ProcessedData(device=device, mean=mean, median=median, std=std, cv=cv, max=max, min=min, fq=fq, tq=tq)
                 processedData.save()
             else:
-                # processedData = ProcessedData(device=device, mean=0, median=0, std=0, cv=0, max=0, min=0, fq=0, tq=0)
-                # processedData.save()
-                pass
+                processedData = ProcessedData(device=device, mean=None, median=None, std=None, cv=None, max=None, min=None, fq=None, tq=None)
+                processedData.save()
                 
         except:
-            print('error')
+            print('data processing error')
             pass

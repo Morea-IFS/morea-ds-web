@@ -96,14 +96,14 @@ class Data(models.Model):
 class ProcessedData(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, blank=True)
     interval = models.IntegerField(default=IntervalTypes.notSelected, choices=IntervalTypes.choices)
-    mean = models.FloatField(blank=True)
-    median = models.FloatField(blank=True)
-    std = models.FloatField(blank=True) # standard deviation
-    cv = models.FloatField(blank=True) # coefficient of variation
-    max = models.FloatField(blank=True)
-    min = models.FloatField(blank=True)
-    fq = models.FloatField(blank=True) # first quartile
-    tq = models.FloatField(blank=True) # third quartile
+    mean = models.FloatField(blank=True, null=True)
+    median = models.FloatField(blank=True, null=True)
+    std = models.FloatField(blank=True, null=True) # standard deviation
+    cv = models.FloatField(blank=True, null=True) # coefficient of variation
+    max = models.FloatField(blank=True, null=True)
+    min = models.FloatField(blank=True, null=True)
+    fq = models.FloatField(blank=True, null=True) # first quartile
+    tq = models.FloatField(blank=True, null=True) # third quartile
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Graph(models.Model):
