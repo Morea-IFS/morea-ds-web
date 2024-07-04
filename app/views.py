@@ -1,4 +1,5 @@
 from .graphs import generateAllMotes24hRaw
+from .graphs import generateAllMotes24hRaw
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
@@ -8,6 +9,7 @@ import uuid
 from .models import Device, Data, Graph, ExtendUser, New
 import os
 from dotenv import load_dotenv
+import json
 
 from .validation import validate
 
@@ -21,6 +23,7 @@ from .forms import DeviceForm
 
 # Render
 
+## General pages
 
 def index(request):
     return render(request, 'home.html')
@@ -33,13 +36,6 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw, 'gMote': allGMotes24hRaw})
 
-
-@login_required(login_url='/login')
-@user_passes_test(lambda u: u.is_superuser, login_url='/login')
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
-
-
 def members(request):
     advisors = ExtendUser.objects.all().filter(
         is_advisor=True).order_by('username')
@@ -51,6 +47,19 @@ def members(request):
     return render(request, 'members.html',
                   {'advisors': advisors, 'activeMembers': activeMembers, 'oldMembers': oldMembers})
 
+def news(request):
+    internNews = New.objects.select_related(
+        'user').order_by('created_at').reverse()
+    gitToken = os.getenv("GITTOKEN")
+
+    return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
+
+## User pages functions
+
+@login_required(login_url='/login')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login')
+def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/login')
 def listMembersUpdate(request):
@@ -67,66 +76,6 @@ def news(request):
     return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
 
 
-def device_create(request):
-    if request.method == 'POST':
-        form = DeviceForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('device_list')
-    else:
-        form = DeviceForm()
-    return render(request, 'device_create.html', {'form': form})
-
-
-def device_list(request):
-    filter_type = request.GET.get('filter_type', '')
-    filter_location = request.GET.get('filter_location', '')
-    filter_section = request.GET.get('filter_section', '')
-    filter_authorized = request.GET.get('filter_authorized', '')
-
-    devices = Device.objects.all()
-
-    if filter_type:
-        devices = devices.filter(type=filter_type)
-    if filter_location:
-        devices = devices.filter(location=filter_location)
-    if filter_section:
-        devices = devices.filter(section=filter_section)
-    if filter_authorized:
-        devices = devices.filter(is_authorized=(filter_authorized == 'true'))
-
-    locations = Device.objects.values_list('location', flat=True).distinct()
-    sections = Device.objects.values_list('section', flat=True).distinct()
-
-    context = {
-        'devices': devices,
-        'locations': locations,
-        'sections': sections,
-        'filter_type': filter_type,
-        'filter_location': filter_location,
-        'filter_section': filter_section,
-        'filter_authorized': filter_authorized,
-    }
-    return render(request, 'device_list.html', context)
-
-def edit_device(request, device_id):
-    device = Device.objects.get(pk=device_id)
-    if request.method == 'POST':
-        form = DeviceForm(request.POST, instance=device)
-        if form.is_valid():
-            form.save()
-            return redirect('device_list')
-    else:
-        form = DeviceForm(instance=device)
-
-    context = {'form': form, 'device': device}
-    return render(request, 'edit_device.html', context)
-        
-
-def device_detail(request, device_id):
-    device = get_object_or_404(Device, id=device_id)
-    return render(request, 'device_detail.html', {'device': device})
-  
 # API
 
 
@@ -219,6 +168,7 @@ def getDeviceData(request):
 
 
 #  registration, authentication and logout user
+
 @user_passes_test(lambda u: u.is_superuser, login_url='/login')
 def register_user(request):
     if request.method == 'POST':
@@ -251,7 +201,6 @@ def register_user(request):
 
     return render(request, 'register.html')
 
-
 @login_required(login_url='/login')
 def update_user(request, id_user):
     user = request.user
@@ -276,7 +225,6 @@ def update_user(request, id_user):
         return redirect('ListMembers')
 
     return render(request, 'register.html', {'user_update': user_update})
-
 
 def login_user(request):
     # login
@@ -319,8 +267,134 @@ def logout_user(request):
     logout(request)
     return redirect('Login')
 
+## Devices pages functions
 
-# Exceptions
+def device_create(request):
+    if request.method == 'POST':
+        form = DeviceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('device_list')
+    else:
+        form = DeviceForm()
+    return render(request, 'device_create.html', {'form': form})
+
+def device_list(request):
+    filter_type = request.GET.get('filter_type', '')
+    filter_location = request.GET.get('filter_location', '')
+    filter_section = request.GET.get('filter_section', '')
+    filter_authorized = request.GET.get('filter_authorized', '')
+
+    devices = Device.objects.all()
+
+    if filter_type:
+        devices = devices.filter(type=filter_type)
+    if filter_location:
+        devices = devices.filter(location=filter_location)
+    if filter_section:
+        devices = devices.filter(section=filter_section)
+    if filter_authorized:
+        devices = devices.filter(is_authorized=(filter_authorized == 'true'))
+
+    locations = Device.objects.values_list('location', flat=True).distinct()
+    sections = Device.objects.values_list('section', flat=True).distinct()
+
+    context = {
+        'devices': devices,
+        'locations': locations,
+        'sections': sections,
+        'filter_type': filter_type,
+        'filter_location': filter_location,
+        'filter_section': filter_section,
+        'filter_authorized': filter_authorized,
+    }
+    return render(request, 'device_list.html', context)
+
+def edit_device(request, device_id):
+    device = Device.objects.get(pk=device_id)
+    if request.method == 'POST':
+        form = DeviceForm(request.POST, instance=device)
+        if form.is_valid():
+            form.save()
+            return redirect('device_list')
+    else:
+        form = DeviceForm(instance=device)
+
+    context = {'form': form, 'device': device}
+    return render(request, 'edit_device.html', context)
+        
+
+def device_detail(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    return render(request, 'device_detail.html', {'device': device})
+  
+# API
+
+@api_view(['POST'])
+def authenticateDevice(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        macAddress = data['macAddress']
+        deviceIp = data['deviceIp']
+        
+
+        if Device.objects.all().filter(mac_address=macAddress).exists():
+            apiToken = uuid.uuid4()
+
+            device = Device.objects.get(mac_address=macAddress)
+            device.api_token = str(apiToken)
+            device.save()
+
+            return Response({'api_token': apiToken, 'deviceName': device.name}, status=status.HTTP_200_OK)
+        else:
+            apiToken = uuid.uuid4()
+
+            try:
+                newDevice = Device(mac_address=macAddress, ip_address=deviceIp, api_token=apiToken)
+                newDevice.save()
+            except:
+                return Response({'error': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'api_token': apiToken}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def storeData(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        apiToken = data["apiToken"]
+        measure = data["measure"]
+    
+
+    # Device verification
+    if not Device.objects.all().filter(api_token=apiToken).exists():
+        return Response({'message': 'invalid api token.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not Device.objects.get(api_token=apiToken).is_authorized == 2:
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if apiToken and measure is not None:
+        for i in measure:
+            device = Device.objects.get(api_token=apiToken)
+            try:
+                total = Data.objects.all().filter(device=device, type=i["type"]).order_by('id').reverse()
+                
+                if total:
+                    storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=(float(total[0].total) + float(i["value"])))
+                    storeData.save()
+                else: 
+                    storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=float(i["value"]))
+                    storeData.save()
+                
+                return Response({'message': 'data stored.'}, status=status.HTTP_200_OK)
+            except:
+                return Response({'message': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    else:
+        return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+## Exceptions
 def page_in_erro403(request, exception):
     return render(request, 'error_403.html', status=403)
 
