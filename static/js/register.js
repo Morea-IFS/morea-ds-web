@@ -6,21 +6,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function validateConfirmPassword() {
         if (password.value !== confirm_password.value) {
-            error_confirm.textContent = "Passwords don't match";
+            error_confirm.textContent = "As senhas não coincidem";
             return false;
         } else {
             error_confirm.textContent = "";
             return true;
         }
     }
-
-    password.addEventListener("input", validateConfirmPassword);
-    confirm_password.addEventListener("input", validateConfirmPassword);
-
-    form.addEventListener("submit", function(event) {
-        if (!validateConfirmPassword()) {
-            event.preventDefault();
-            alert("Passwords don't match. Please correct the errors.");
-        }
-    });
 });
