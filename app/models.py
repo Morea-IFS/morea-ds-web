@@ -13,7 +13,6 @@ class DeviceTypes(models.IntegerChoices):
     energy = 2, 'Energy',
     gas = 3, 'Gas'
 
-
 class GraphsTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
@@ -27,11 +26,14 @@ class AuthTypes(models.IntegerChoices):
 
 class DataTypes(models.IntegerChoices):
     notSelected = 0, "Not Selected"
-    volume = 1, "Volume/L"
+    volume = 1, "Volume (L)"
+    kwh = 2, "kWh"
+    watt = 3, "Watt"
+    ampere = 4, "Ampere"
     
 class IntervalTypes(models.IntegerChoices):
     notSelected = 0, 'Not Selected',
-    hourly = 1, "Houly"
+    hourly = 1, "Hourly"
 
 
 class ExtendUser(AbstractUser):
