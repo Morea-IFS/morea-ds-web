@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, Data, Graph, ExtendUser, New
+from .models import Device, DeviceLog, Data, Graph, ExtendUser, New
 import os
 from dotenv import load_dotenv
 import json
@@ -237,24 +237,42 @@ def authenticateDevice(request):
         deviceIp = data['deviceIp']
         
 
-        if Device.objects.all().filter(mac_address=macAddress).exists():
+        if Device.objects.all().filter(mac_address=macAddress, is_authorized=2).exists():
             apiToken = uuid.uuid4()
 
             device = Device.objects.get(mac_address=macAddress)
             device.api_token = str(apiToken)
+            device.ip_address = str(deviceIp)
+            
+            deviceLog = DeviceLog(device=device, is_authorized=device.is_authorized, mac_address=device.mac_address, ip_address=device.ip_address, api_token=device.api_token)
+            
             device.save()
+            deviceLog.save()
 
             return Response({'api_token': apiToken, 'deviceName': device.name}, status=status.HTTP_200_OK)
+        elif Device.objects.all().filter(mac_address=macAddress).exists():
+            device = Device.objects.get(mac_address=macAddress)
+            device.ip_address = str(deviceIp)
+            device.api_token = None
+            
+            deviceLog = DeviceLog(device=device, is_authorized=device.is_authorized, mac_address=device.mac_address, ip_address=device.ip_address)
+            
+            device.save()
+            deviceLog.save()
+            
+            return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            apiToken = uuid.uuid4()
-
             try:
-                newDevice = Device(mac_address=macAddress, ip_address=deviceIp, api_token=apiToken)
+                newDevice = Device(mac_address=macAddress, ip_address=deviceIp)
+                
+                deviceLog = DeviceLog(device=newDevice, is_authorized=newDevice.is_authorized, mac_address=newDevice.mac_address, ip_address=newDevice.ip_address)
+            
                 newDevice.save()
+                deviceLog.save()
             except:
                 return Response({'error': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'api_token': apiToken}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'device registered, await authorization'}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def storeData(request):
