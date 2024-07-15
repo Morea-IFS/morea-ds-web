@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const password = document.getElementById("password");
     const confirm_password = document.getElementById("confirm_password");
     const error_confirm = document.getElementById("error_confirm");
@@ -13,4 +13,15 @@ document.addEventListener("DOMContentLoaded", function() {
             return true;
         }
     }
+
+    password.addEventListener("input", validateConfirmPassword);
+    confirm_password.addEventListener("input", validateConfirmPassword);
+
+    form.addEventListener("submit", function (event) {
+        if (!validateConfirmPassword()) {
+            event.preventDefault();
+        }
+    });
 });
+
+
