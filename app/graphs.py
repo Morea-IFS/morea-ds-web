@@ -7,18 +7,21 @@ from django.conf import settings
 
 
 def generateAllMotes24hRaw():
-    for n in range(1, 3):
+    for n in range(1, 4):
         idList = list(Device.objects.filter(
             type=n, is_authorized=True).values_list('id', flat=True))
         dataFrameList = []
 
         mediaRoot = settings.MEDIA_ROOT
-        if (n == 1):
+        if n == 1:
             mediaPath = f'graphs/allWMoteDevices24hRaw.html'
             collectionUnit = 'Consumo(L)'
-        else:
+        elif n == 2:
             mediaPath = f'graphs/allEMoteDevices24hRaw.html'
             collectionUnit = 'Consumo(Watts)'
+        else:
+            mediaPath = 'graphs/allGMoteDevices24hRaw.html'
+            collectionUnit = 'Consumo(m³)'
 
         for i in idList:
             counter = 0

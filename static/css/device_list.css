@@ -1,0 +1,75 @@
+.container {
+    margin: 4rem 30px;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 1rem;
+    display: block;
+}
+
+select, button {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 0.5rem;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 4rem 16px;
+    }
+}
+
+.device-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.device-table th, .device-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.device-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.device-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.device-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.device-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.device-table a:hover {
+    text-decoration: underline;
+}

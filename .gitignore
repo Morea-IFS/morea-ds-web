@@ -11,7 +11,7 @@ db.sqlite3
 env/
 dev.py
 static/graphs/*
-media/graphs/*
+media/graphs/*.html
 media/profile/*
 venv
 pyvenv.cfg
