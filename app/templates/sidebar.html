@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Sidebar{% endblock %}</title>
+
+    <link rel="icon" href="{% static 'assets/images/logo-morea-ds-noname.ico' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    {% block stylesCustom %}{% endblock %}
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="{% static 'assets/images/logo-morea-ds-noname.png' %}" alt="MOREA Logo">
+        <p>MOREA</p>
+    </div>
+    <div class="sidebar-container">
+        <div class="navbar">
+            <a href="{% url 'Home' %}">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            {% if request.user.is_superuser %}
+            <a href="{% url 'Register' %}">
+                <i class="fas fa-user-plus"></i>
+                <span>Cadastrar Usuário</span>
+            </a>
+            <a href="{% url 'ListMembers' %}">
+                <i class="fas fa-users"></i>
+                <span>Visualizar Membros</span>
+            </a>
+            <a href="{% url 'Create Device' %}">
+                <i class="fas fa-plus-square"></i>
+                <span>Cadastrar Dispositivos</span>
+            </a>
+            <a href="{% url 'device_list' %}">
+                <i class="fas fa-list-alt"></i>
+                <span>Visualizar Dispositivos</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'UpdateUser' request.user.id %}">
+                <i class="fas fa-user-edit"></i>
+                <span>Atualizar sua Conta</span>
+            </a>
+            <div class="logout-container">
+                <form action="{% url 'Logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        {% block sidebar_content %}{% endblock %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+
+</html>

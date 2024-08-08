@@ -1,75 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/register.css' %}">
-    <title>User Registration</title>
-</head>
-<body>
-<div class="home">
+{% extends 'sidebar.html' %}
+
+{% load static %}
+
+{% block title %}Morea | Gerenciamento de Usuários{% endblock %}
+
+{% block stylesCustom %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
     <div class="home__content">
-        <h1 class="textWhatMorea">{% if user_update %}Update User{% else %}User Registration{% endif %}</h1>
-        {% if user_update and  not user_update.is_superuser%}
-            <div class="logout-container">
-                <a class="logout" href="{% url 'Logout' %}">Logout</a>
-            </div>
+        <h1 class="textWhatMorea"> {% if user_update %} Atualizar Usuário {% else %} Cadastro de Usuário {% endif %}
+        </h1>
+        {% if errors %}
+        <div class="errors">
+            {% for error in errors %}
+            <div class="error">{{ error }} <button type="button" class="close-error">x</button></div>
+            {% endfor %}
+        </div>
         {% endif %}
-        <form action="{% if user_update %}{% url 'UpdateUser' user_update.id %}{% else %}{% url 'Register' %}{% endif %}" method="post" enctype="multipart/form-data" class="form">
+        {% if message %}
+        <div class="message">{{ message }}<button type="button" class="close-message">x</button></div>
+        {% endif %}
+        <form action="{% if user_update %}{% url 'UpdateUser' user_update.id %}{% else %}{% url 'Register' %}{% endif %}"
+            method="post" enctype="multipart/form-data" class="form">
             {% csrf_token %}
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" value="{{ user_update.username }}">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" name="username" value="{{ user_update.username }}" required>
             </div>
             <div class="form-group">
-                <label for="first_name">First Name:</label>
+                <label for="first_name">Nome:</label>
                 <input type="text" id="first_name" name="first_name" value="{{ user_update.first_name }}" required>
             </div>
             <div class="form-group">
-                <label for="last_name">Last Name:</label>
+                <label for="last_name">Sobrenome:</label>
                 <input type="text" id="last_name" name="last_name" value="{{ user_update.last_name }}" required>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="{{ user_update.email }}" required>
             </div>
-
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label for="password">Senha:</label>
                 <input type="password" id="password" name="password">
                 {% if user_update %}
-                    <small>Leave blank to keep the current password</small>
-                {% endif %}
-                    </div>
-            <div class="form-group">
-                    <label for="confirm_password">confirm password:</label>
-                    <input type="password" id="confirm_password" name="confirm_password">
+                <small>Deixe em branco para manter a senha atual</small>
             </div>
-                <p id="error_confirm"></p>
-
             <div class="form-group">
-                <label for="profile_photo">Profile Photo:</label>
+                <label for="confirm_password">Confirme sua Senha:</label>
+                <input type="password" id="confirm_password" name="confirm_password">
+                <p id="error_confirm" class="error-message"></p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="profile_photo">Foto de Perfil:</label>
                 <input type="file" id="profile_photo" name="profile_photo">
             </div>
             <div class="form-group">
-                <label for="description">Description:</label>
+                <label for="description">Descrição:</label>
                 <textarea id="description" name="description">{{ user_update.description }}</textarea>
             </div>
-            <div class="form-group">
-                <label for="is_advisor">Is Advisor:</label>
+            <div class="form-group checkbox-group">
                 <input type="checkbox" id="is_advisor" name="is_advisor" {% if user_update.is_advisor %}checked{% endif %}>
+                <label for="is_advisor">Orientador</label>
             </div>
-            {% if errors %}
-                {% for error in errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
-            <input type="submit" value="{% if user_update %}Update{% else %}Register{% endif %}" class="buttonMore">
+            <div class="form-group">
+                <input type="submit" value="{% if user_update %}Atualizar{% else %}Cadastrar{% endif %}" class="buttonMore">
+            </div>
         </form>
-        <div class="message">{{ message }}</div>
-    </div>
-</div>
-<script src="{% static 'js/register.js' %}"></script>
-</body>
-</html>
+        </div>
+        </div>
+        <script src="{% static 'js/register.js' %}"></script>
+        <script src="{% static 'js/error.js' %}"></script>
+{% endblock %}

@@ -1,103 +1,184 @@
-*{
-    padding:0;
-    margin: 0;
-    box-sizing: border-box;
+:root {
+    --color-main: #3498db;
+    --color-main-dark: #2980b9;
+    --color-background: #f4f4f4;
+    --color-text: #333;
+    --color-error: #e74c3c;
+    --color-success: #2ecc71;
+    --color-border: #ddd;
+    --border-radius: 4px;
+    --font-family: 'Inter', sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
+    background-color: var(--color-background);
+}
+
+.container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
-}
-
-.home {
-    background: #fff;
+    min-height: 100vh;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
-    margin-top: 300px;
 }
 
 .home__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background: #fff;
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
 }
 
-h1 {
-    margin-bottom: 20px;
+.textWhatMorea {
     font-size: 24px;
+    color: var(--color-main);
+    margin-bottom: 40px;
     text-align: center;
 }
 
 .form {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
 }
 
-label {
-    display: block;
-    font-weight: bold;
+.form-group label {
     margin-bottom: 5px;
+    color: var(--color-text);
+    font-size: 14px;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="file"],
-textarea {
-    width: 100%;
+.form-group input,
+.form-group textarea {
     padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    color: var(--color-text);
+    background: var(--color-background);
 
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--color-main);
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 textarea {
     resize: vertical;
-    height: 100px;
+    min-height: 100px;
 }
 
-input[type="checkbox"] {
-    margin-left: 5px;
-}
-
-.buttonMore {
-    background: #007BFF;
-    color: #fff;
-    border: none;
+.buttonMore,
+input[type="submit"] {
     width: 100%;
-    padding: 10px;
-}
-#error_confirm {
-    color:red;
-}
-.message {
-    color:green;
-}
-.logout-container {
-    text-align: right;
-    margin-bottom: 20px;
-}
-
-.logout {
-    color: #ff0000;
     text-decoration: none;
-    font-weight: bold;
+    color: #fff;
+    /* Define a cor do texto como branca */
+    font-size: 16px;
+    padding: 10px 60px;
+    border: 1px solid #007BFF;
+    border-radius: 4px;
+    background-color: #007BFF;
+    transition: background 0.3s, color 0.3s;
+    cursor: pointer;
+    margin-top: 20px;
 }
 
-.logout:hover {
-    text-decoration: underline;
+.errors,
+.message {
+    position: relative;
+    padding-right: 30px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.errors {
+    background-color: #ffebe9;
+    border: 1px solid #ffc1c0;
+    color: black;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.message {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: black;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.close-message {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: rgb(41, 99, 48);
+}
+
+.close-error {
+    position: absolute;
+    top: 40%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: #e74c3c;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .home__content {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .textWhatMorea {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 13px;
+    }
+
+    .buttonMore {
+        font-size: 14px;
+        padding: 10px 40px;
+    }
+
+    .errors,
+    .message {
+        font-size: 13px;
+    }
 }

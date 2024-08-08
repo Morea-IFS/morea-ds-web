@@ -1,48 +1,51 @@
-{% extends 'layout.html' %}
+{% extends 'sidebar.html' %}
 
 {% load static %}
 
-{% block title %}Morea | Lista de Dispositivos{% endblock %}
+{% block title %}Morea | Gerenciamento de Dispositivos{% endblock %}
 
 {% block stylesCustom %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="{% static 'css/device_list.css' %}" />
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <h1>Dispositivos Cadastrados</h1>
-
-    <form method="GET">
-        <label for="filter_type">Filtrar por tipo:</label>
-        <select name="filter_type" id="filter_type">
-            <option value="">Todos</option>
-            <option value="1" {% if filter_type == '1' %}selected{% endif %}>Água</option>
-            <option value="2" {% if filter_type == '2' %}selected{% endif %}>Energia</option>
-        </select>
-        <br>
-        <label for="filter_location">Filtrar por localização:</label>
-        <select name="filter_location" id="filter_location">
-            <option value="">Todas</option>
-            {% for location in locations %}
-            <option value="{{ location }}" {% if filter_location == location %}selected{% endif %}>{{ location }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="filter_section">Filtrar por seção:</label>
-        <select name="filter_section" id="filter_section">
-            <option value="">Todas</option>
-            {% for section in sections %}
-            <option value="{{ section }}" {% if filter_section == section %}selected{% endif %}>{{ section }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="filter_authorized">Filtrar por status de autorização:</label>
-        <select name="filter_authorized" id="filter_authorized">
-            <option value="">Todos</option>
-            <option value="true" {% if filter_authorized == 'true' %}selected{% endif %}>Autorizado</option>
-            <option value="false" {% if filter_authorized == 'false' %}selected{% endif %}>Não Autorizado</option>
-        </select>
-        <br>
+    <form class="filter-form" method="GET">
+        <div class="form-group">
+            <select name="filter_type" id="filter_type">
+                <option value="">Tipo</option>
+                <option value="1" {% if filter_type == '1' %}selected{% endif %}>Água</option>
+                <option value="2" {% if filter_type == '2' %}selected{% endif %}>Energia</option>
+                <option value="3" {% if filter_type == '3' %}selected{% endif %}>Gás</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="filter_location" id="filter_location">
+                <option value="">Localização</option>
+                {% for location in locations %}
+                <option value="{{ location }}" {% if filter_location == location %}selected{% endif %}>{{ location }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="filter_section" id="filter_section">
+                <option value="">Seção</option>
+                {% for section in sections %}
+                <option value="{{ section }}" {% if filter_section == section %}selected{% endif %}>{{ section }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="filter_authorized" id="filter_authorized">
+                <option value="">Status</option>
+                <option value="0" {% if filter_authorized == '0' %}selected{% endif %}>Pendente</option>
+                <option value="1" {% if filter_authorized == '1' %}selected{% endif %}>Não Autorizado</option>
+                <option value="2" {% if filter_authorized == '2' %}selected{% endif %}>Autorizado</option>
+            </select>
+        </div>
         <button type="submit">Filtrar</button>
     </form>
 
@@ -53,7 +56,8 @@
                 <th>Seção/Localização</th>
                 <th>Endereço IP</th>
                 <th>Endereço MAC</th>
-                <th>Ações</th>
+                <th>Ver mais</th>
+                <th>Atualizar</th>
             </tr>
         </thead>
         <tbody>
@@ -64,12 +68,12 @@
                 <td>{{ device.ip_address }}</td>
                 <td>{{ device.mac_address }}</td>
                 <td>
-                    {% if device.is_authorized %}
-                    <a href="{% url 'device_detail' device.id %}">Ver mais</a>
-                    {% else %}
-                    <a href="{% url 'edit_device' device.id %}">Editar</a>
-                    {% endif %}
+                    <a href="{% url 'device_detail' device.id %}"><i class="fas fa-info-circle"></i></a>
                 </td>
+                <td>
+                    <a href="{% url 'edit_device' device.id %}"><i class="fas fa-edit"></i></a>
+                </td>
+
             </tr>
             {% endfor %}
         </tbody>

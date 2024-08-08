@@ -1,30 +1,45 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/images/logo-morea-ds-noname.ico' %}">
+    {% block stylesCustom %}
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <title>User Registration</title>
+    {% endblock %}
+    <title>Morea | Login</title>
 </head>
+
 <body>
-<h1>Login</h1>
-<form action="{% url 'Login' %}"  method="post" enctype="multipart/form-data">
-
-    {% csrf_token %}
-
-    <div>
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required>
+    {% block content %}
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+    <div class="container">
+        <form action="{% url 'Login' %}" method="post" enctype="multipart/form-data" class="form">
+            <div class="logo">
+                <img src="{% static 'assets/images/logo-morea-ds-noname.png' %}" alt="Logo do Site">
+            </div>
+            <h1>Login</h1>
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" name="password" placeholder="Senha" required>
+            </div>
+            {% if error %}
+            <div class="errors">
+                {{ error }}
+                <button type="button" class="close-error">x</button>
+            </div>
+            {% endif %}
+            <input type="submit" value="Login" class="buttonMore">
+        </form>
+        <script src="{% static 'js/error.js' %}"></script>
     </div>
-    <div>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required>
-    </div>
-    <div>
-        {{ error }}
-    </div>
-    <input type="submit" value="Login">
-</form>
+    {% endblock %}
 </body>
+
 </html>

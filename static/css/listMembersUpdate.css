@@ -1,40 +1,93 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+:root {
+    --color-main: #3498db;
+    --color-main-dark: #2980b9;
+    --color-background: #f4f4f4;
+    --color-text: #333;
+    --color-border: #ddd;
+    --color-error: #e74c3c;
+    --border-radius: 4px;
+    --font-family: 'Inter', sans-serif;
 }
 
-.container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 600px;
-    box-sizing: border-box;
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    margin: 0;
+    padding: 0;
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 20px;
+    font-size: 24px;
+    color: var(--color-main);
 }
 
 .member-list {
     list-style-type: none;
     padding: 0;
-    margin: 0;
+    margin: 20px 0;
 }
 
-.member-list li {
-    background: #f9f9f9;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+.member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.3s ease;
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-item:hover {
+    background-color: #f0f0f0;
+}
+
+.member-name {
+    font-size: 16px;
+    color: var(--color-text);
+}
+
+.member-link {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 18px;
+    /* Reduzi o tamanho do ícone plus */
+    color: var(--color-main);
+    background-color: #e9ecef;
+    border-radius: 50%;
+    width: 24px;
+    /* Reduzi o tamanho do botão */
+    height: 24px;
+    /* Reduzi o tamanho do botão */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.member-link:hover {
+    background-color: var(--color-main);
+    color: #fff;
+}
+
+.container-white {
+    background: #fff;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* Adiciona margem semelhante ao exemplo */
+    min-height: 100vh;
+}
+
+@media screen and (max-width: 768px) {
+
+    .content {
+        margin-left: 0;
+    }
+
+    .container-white {
+        padding: 20px;
+    }
 }

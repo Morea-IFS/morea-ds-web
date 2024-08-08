@@ -21,7 +21,7 @@ def verify_username(username, errors):  # This function checks if the username i
     try:
         user_username = ExtendUser.objects.get(username=username)
         if user_username:
-            errors.append("username already exist")
+            errors.append("O nome de usuário já existe")
     except ExtendUser.DoesNotExist:
         user_username = None
 
@@ -30,11 +30,11 @@ def verify_email(email, errors):  # This function checks whether the email is al
     try:
         user_email = ExtendUser.objects.get(email=email)
         if user_email:
-            errors.append("email already exist")
+            errors.append("O email já existe")
     except ExtendUser.DoesNotExist:
         user_email = None
 
-    format_email = EmailValidator(message="Please enter a valid email address")
+    format_email = EmailValidator(message="Insira um endereço de e-mail válido")
     try:
         format_email(email)
     except ValidationError as error:
