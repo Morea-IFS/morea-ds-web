@@ -13,6 +13,7 @@ class DeviceTypes(models.IntegerChoices):
     energy = 2, 'Energy',
     gas = 3, 'Gas'
 
+
 class GraphsTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
@@ -26,14 +27,11 @@ class AuthTypes(models.IntegerChoices):
 
 class DataTypes(models.IntegerChoices):
     notSelected = 0, "Not Selected"
-    volume = 1, "Volume (L)"
-    kwh = 2, "kWh"
-    watt = 3, "Watt"
-    ampere = 4, "Ampere"
+    volume = 1, "Volume/L"
     
 class IntervalTypes(models.IntegerChoices):
     notSelected = 0, 'Not Selected',
-    hourly = 1, "Hourly"
+    hourly = 1, "Houly"
 
 
 class ExtendUser(AbstractUser):
@@ -82,25 +80,6 @@ class Device(models.Model):
     def __str__(self):
         if self.name:
             return self.name
-        else:
-            return "Unnamed"
-        
-class DeviceLog(models.Model):
-    device = models.ForeignKey(
-        Device, on_delete=models.CASCADE, null=True, blank=True)
-    is_authorized = models.IntegerField(choices=AuthTypes.choices, default=AuthTypes.pending)
-    mac_address = models.CharField(
-        max_length=255, null=True, blank=True)
-    ip_address = models.GenericIPAddressField(
-        max_length=255, null=True, blank=True)
-    api_token = models.CharField(
-        max_length=255, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-
-    def __str__(self):
-        if self.device.name:
-            return self.device.name
         else:
             return "Unnamed"
 
