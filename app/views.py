@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from .graphs import generateAllMotes24hRaw
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
@@ -96,7 +97,7 @@ def register_user(request):
                                               is_advisor=is_advisor
                                               )
         user.save()
-        return render(request, 'register.html', {'user': user, 'message': 'user successfully registered'})
+        return render(request, 'register.html', {'user': user, 'message': 'Usuário cadastrado com sucesso'})
 
     return render(request, 'register.html')
 
@@ -116,12 +117,25 @@ def update_user(request, id_user):
         user_update.description = request.POST['description']
         user_update.is_advisor = 'is_advisor' in request.POST
         user_update.profile_photo = request.FILES.get('profile_photo')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
 
-        if request.POST.get('password'):
-            user_update.set_password(request.POST['password'])
+        errors = []
 
-        user_update.save()
-        return redirect('ListMembers')
+        if password and confirm_password:
+            if password != confirm_password:
+                errors.append("As senhas não coincidem")
+            else:
+                user_update.set_password(password)
+
+        if not errors:
+            try:
+                user_update.save()
+                return redirect('ListMembers')
+            except ValidationError as e:
+                errors.extend(e.messages)
+
+        return render(request, 'register.html', {'user_update': user_update, 'errors': errors})
 
     return render(request, 'register.html', {'user_update': user_update})
 
@@ -137,26 +151,20 @@ def login_user(request):
         try:
             user_aux = ExtendUser.objects.get(email=email)
         except ExtendUser.DoesNotExist:
-            return render(request, 'login.html', {'error': 'User not found'})
+            return render(request, 'login.html', {'error': 'Usuário não encontrado'})
 
-        user = authenticate(request, username=user_aux.username, password=password)
+        user = authenticate(request, username=email, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
-                if user.is_superuser:
-                    return redirect('AdminDashboard')
-                else:
-                    return redirect('UpdateUser', id_user=user.id)
+                return redirect('UpdateUser', id_user=user.id)
 
             else:
-                return render(request, 'login.html', {'error': 'User account is inactive'})
+                return render(request, 'login.html', {'error': 'A conta do usuário está inativa'})
         else:
-            return render(request, 'login.html', {'error': 'User or password incorrect'})
+            return render(request, 'login.html', {'error': 'Usuário ou senha incorretos'})
 
     if user_auth.id is not None:
-        if user_auth.is_superuser:
-            return redirect('AdminDashboard')
-        else:
             return redirect('UpdateUser', id_user=user_auth.id)
 
     return render(request, 'login.html')
