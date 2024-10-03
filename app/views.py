@@ -67,7 +67,7 @@ def listMembersUpdate(request):
         membersUpdate = ExtendUser.objects.all()
         return render(request, 'listMembersUpdate.html', {'members': membersUpdate})
 
-
+""
 def news(request):
     internNews = New.objects.select_related(
         'user').order_by('created_at').reverse()
