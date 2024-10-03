@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, Data, Graph, ExtendUser, New
+from .models import Device, DeviceLog, Data, Graph, ExtendUser, New
 import os
 from dotenv import load_dotenv
 import json
