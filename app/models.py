@@ -27,11 +27,14 @@ class AuthTypes(models.IntegerChoices):
 
 class DataTypes(models.IntegerChoices):
     notSelected = 0, "Not Selected"
-    volume = 1, "Volume/L"
+    volume = 1, "Volume (L)"
+    kwh = 2, "kWh"
+    watt = 3, "Watt"
+    ampere = 4, "Ampere"
     
 class IntervalTypes(models.IntegerChoices):
     notSelected = 0, 'Not Selected',
-    hourly = 1, "Houly"
+    hourly = 1, "Hourly"
 
 
 class ExtendUser(AbstractUser):
@@ -82,7 +85,25 @@ class Device(models.Model):
             return self.name
         else:
             return "Unnamed"
+        
+class DeviceLog(models.Model):
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, null=True, blank=True)
+    is_authorized = models.IntegerField(choices=AuthTypes.choices, default=AuthTypes.pending)
+    mac_address = models.CharField(
+        max_length=255, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(
+        max_length=255, null=True, blank=True)
+    api_token = models.CharField(
+        max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+
+    def __str__(self):
+        if self.device.name:
+            return self.device.name
+        else:
+            return "Unnamed"
 
 class Data(models.Model):
     device = models.ForeignKey(
