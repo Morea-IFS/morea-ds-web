@@ -13,6 +13,7 @@ class DeviceTypes(models.IntegerChoices):
     energy = 2, 'Energy',
     gas = 3, 'Gas'
 
+
 class GraphsTypes(models.IntegerChoices):
     none = 0, 'Not Defined',
     allWMoteDevices24hRaw = 1, 'All WMote Devices | 24h | Raw',
@@ -96,14 +97,13 @@ class DeviceLog(models.Model):
     api_token = models.CharField(
         max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
 
     def __str__(self):
         if self.device.name:
             return self.device.name
         else:
             return "Unnamed"
-
 
 class Data(models.Model):
     device = models.ForeignKey(

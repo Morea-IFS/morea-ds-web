@@ -1,5 +1,6 @@
 from django.forms import ValidationError
 from .graphs import generateAllMotes24hRaw
+from .graphs import generateAllMotes24hRaw
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
@@ -66,6 +67,106 @@ def listMembersUpdate(request):
     if request.method == 'GET':
         membersUpdate = ExtendUser.objects.all()
         return render(request, 'listMembersUpdate.html', {'members': membersUpdate})
+
+""
+def news(request):
+    internNews = New.objects.select_related(
+        'user').order_by('created_at').reverse()
+    gitToken = os.getenv("GITTOKEN")
+
+    return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
+
+
+# API
+
+
+@api_view(['POST'])
+def identifyDevice(request):
+    if request.method == 'POST':
+        macAddress = request.POST['macAddress']
+
+        if Device.objects.all().filter(mac_address=macAddress).exists():
+            apiToken = uuid.uuid4()
+
+            device = Device.objects.get(mac_address=macAddress)
+            device.api_token = str(apiToken)
+            device.save()
+
+            return Response({'id': device.id, 'api_token': apiToken}, status=status.HTTP_200_OK)
+        else:
+            id = uuid.uuid4()
+            apiToken = uuid.uuid4()
+
+            try:
+                newDevice = Device(
+                    id=id, mac_address=macAddress, api_token=apiToken)
+                newDevice.save()
+            except:
+                return Response({'error': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'id': id, 'api_token': apiToken}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+def getDeviceIp(request):
+    if request.method == "POST":
+        deviceId = request.POST["deviceId"]
+        deviceIp = request.POST["deviceIp"]
+        apiToken = request.POST["apiToken"]
+
+    if not Device.objects.all().filter(id=deviceId).exists():
+        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    if not Device.objects.get(id=deviceId).api_token == apiToken:
+        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not Device.objects.get(id=deviceId).is_authorized == True:
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if deviceId and deviceIp:
+        deviceObject = Device.objects.get(id=deviceId)
+        deviceObject.ip_address = str(deviceIp)
+        deviceObject.save()
+
+        return Response({'message': 'ip received.', 'deviceName': deviceObject.name}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'missing deviceId or deviceIp.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def getDeviceData(request):
+    if request.method == "POST":
+        deviceId = request.POST["deviceId"]
+        apiToken = request.POST["apiToken"]
+        volume = request.POST["volume"]
+
+    if not Device.objects.all().filter(id=deviceId).exists():
+        return Response({'message': 'device does not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    if not Device.objects.get(id=deviceId).api_token == apiToken:
+        return Response({'message': 'api token does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not Device.objects.get(id=deviceId).is_authorized == True:
+        return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if deviceId and volume:
+        device = Device.objects.get(id=str(deviceId))
+        total = Data.objects.all().filter(
+            device=str(deviceId)).order_by('id').reverse()
+
+        if (total):
+            saveData = Data(device=device,
+                            last_collection=float(volume), total=(float(total[0].total) + float(volume)))
+            saveData.save()
+        else:
+            saveData = Data(device=device,
+                            last_collection=float(volume), total=float(volume))
+            saveData.save()
+
+        return Response({'message': 'data received.'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 #  registration, authentication and logout user
 
@@ -245,52 +346,30 @@ def authenticateDevice(request):
         deviceIp = data['deviceIp']
         
 
-        if Device.objects.all().filter(mac_address=macAddress, is_authorized=2).exists():
+        if Device.objects.all().filter(mac_address=macAddress).exists():
             apiToken = uuid.uuid4()
 
             device = Device.objects.get(mac_address=macAddress)
             device.api_token = str(apiToken)
-            device.ip_address = str(deviceIp)
-            
-            deviceLog = DeviceLog(device=device, is_authorized=device.is_authorized, mac_address=device.mac_address, ip_address=device.ip_address, api_token=device.api_token)
-            
             device.save()
-            deviceLog.save()
 
             return Response({'api_token': apiToken, 'deviceName': device.name}, status=status.HTTP_200_OK)
-        elif Device.objects.all().filter(mac_address=macAddress).exists():
-            apiToken = uuid.uuid4()
-            
-            device = Device.objects.get(mac_address=macAddress)
-            device.ip_address = str(deviceIp)
-            device.api_token = apiToken
-            
-            deviceLog = DeviceLog(device=device, is_authorized=device.is_authorized, mac_address=device.mac_address, ip_address=device.ip_address, api_token=apiToken)
-            
-            device.save()
-            deviceLog.save()
-            
-            return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
+            apiToken = uuid.uuid4()
+
             try:
-                apiToken = uuid.uuid4()
                 newDevice = Device(mac_address=macAddress, ip_address=deviceIp, api_token=apiToken)
-                
-                deviceLog = DeviceLog(device=newDevice, is_authorized=newDevice.is_authorized, mac_address=newDevice.mac_address, ip_address=newDevice.ip_address, api_token=apiToken)
-            
                 newDevice.save()
-                deviceLog.save()
             except:
                 return Response({'error': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'message': 'device registered, await authorization'}, status=status.HTTP_201_CREATED)
+            return Response({'api_token': apiToken}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def storeData(request):
     if request.method == "POST":
         data = json.loads(request.body)
         apiToken = data["apiToken"]
-        macAddress = data['macAddress']
         measure = data["measure"]
     
 
@@ -304,24 +383,20 @@ def storeData(request):
     if apiToken and measure is not None:
         for i in measure:
             device = Device.objects.get(api_token=apiToken)
-            
-            if device.mac_address == macAddress:
-                try:
-                    total = Data.objects.all().filter(device=device, type=i["type"]).order_by('id').reverse()
-
-                    if total:
-                        storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=(float(total[0].total) + float(i["value"])))
-                        storeData.save()
-                    else: 
-                        storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=float(i["value"]))
-                        storeData.save()
-
-                    return Response({'message': 'data stored.'}, status=status.HTTP_200_OK)
-                except:
-                    return Response({'message': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'message': 'api token and mac address does not match.'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                total = Data.objects.all().filter(device=device, type=i["type"]).order_by('id').reverse()
                 
+                if total:
+                    storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=(float(total[0].total) + float(i["value"])))
+                    storeData.save()
+                else: 
+                    storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=float(i["value"]))
+                    storeData.save()
+                
+                return Response({'message': 'data stored.'}, status=status.HTTP_200_OK)
+            except:
+                return Response({'message': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+        
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
 
