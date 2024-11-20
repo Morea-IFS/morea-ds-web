@@ -281,17 +281,17 @@ def storeData(request):
         apiToken = data["apiToken"]
         measure = data["measure"]
     
-
     # Device verification
     if not Device.objects.all().filter(api_token=apiToken).exists():
         return Response({'message': 'invalid api token.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     if not Device.objects.get(api_token=apiToken).is_authorized == 2:
         return Response({'message': 'device not authorized.'}, status=status.HTTP_401_UNAUTHORIZED)
-
+    
     if apiToken and measure is not None:
         for i in measure:
             device = Device.objects.get(api_token=apiToken)
+        
             try:
                 total = Data.objects.all().filter(device=device, type=i["type"]).order_by('id').reverse()
                 
@@ -302,10 +302,10 @@ def storeData(request):
                     storeData = Data(device=device, type=i["type"], last_collection=float(i["value"]), total=float(i["value"]))
                     storeData.save()
                 
-                return Response({'message': 'data stored.'}, status=status.HTTP_200_OK)
             except:
                 return Response({'message': 'something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        return Response({'message': 'data stored.'}, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
 
