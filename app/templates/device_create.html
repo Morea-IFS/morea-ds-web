@@ -1,28 +1,51 @@
-{% extends 'layout.html' %}
+{% extends 'sidebar.html' %}
 
 {% load static %}
 
-{% block title %}Morea | Cadastro de Dispositivo{% endblock %}
+{% block title %}Morea | Gerenciamento de Dispositivos{% endblock %}
 
 {% block stylesCustom %}
-  <link rel="stylesheet" href="{% static 'css/device_form.css' %}" />
+<link rel="stylesheet" href="{% static 'css/device_form.css' %}" />
 {% endblock %}
 
 {% block content %}
 <div class="container">
-  <h1>Cadastro de Dispositivo</h1>
-  <form method="POST">
-    {% csrf_token %}
-    {% for field in form %}
+  <div class="home__content">
+    <h1 class="textWhatMorea">Cadastro de Dispositivo</h1>
+    <form method="POST">
+      {% csrf_token %}
+      {% for field in form %}
       <div class="form-group">
-        {{ field.label_tag }}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.name == 'type' %}
+        <select name="type" id="type" class="form-control">
+          <option value="">Tipo</option>
+          <option value="1" {% if field.value == '1' %}selected{% endif %}>Água</option>
+          <option value="2" {% if field.value == '2' %}selected{% endif %}>Energia</option>
+          <option value="3" {% if field.value == '3' %}selected{% endif %}>Gás</option>
+        </select>
+        {% elif field.name == 'is_authorized' %}
+        <select name="is_authorized" id="is_authorized" class="form-control">
+          <option value="">Status</option>
+          <option value="0" {% if field.value == '0' %}selected{% endif %}>Pendente</option>
+          <option value="1" {% if field.value == '1' %}selected{% endif %}>Não Autorizado</option>
+          <option value="2" {% if field.value == '2' %}selected{% endif %}>Autorizado</option>
+        </select>
+        {% else %}
         {{ field }}
+        {% endif %}
         {% if field.errors %}
-          <div class="error">{{ field.errors }}</div>
+        <ul class="errors">
+          {% for error in field.errors %}
+          <li>{{ error }} <button type="button" class="close-error">x</button></li>
+          {% endfor %}
+        </ul>
         {% endif %}
       </div>
-    {% endfor %}
-    <button type="submit">Salvar</button>
-  </form>
+      {% endfor %}
+      <input type="submit" class="buttonMore" value="Cadastrar">
+    </form>
+  </div>
 </div>
+<script src="{% static 'js/error.js' %}"></script>
 {% endblock %}
