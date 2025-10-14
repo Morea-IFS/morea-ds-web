@@ -20,7 +20,7 @@ from . import views
 urlpatterns = [
     ## General
     path('', views.index, name="Home"),
-    path('dashboard', views.dashboard, name="Dashboard"),
+    # path('dashboard', views.dashboard, name="Dashboard"),
     path('admin-dashboard', views.admin_dashboard, name='AdminDashboard'),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
@@ -38,6 +38,8 @@ urlpatterns = [
     path('login', views.login_user, name='Login'),
     path('logout', views.logout_user, name='Logout'),
     path('list-members', views.listMembersUpdate, name='ListMembers'),
-    path('update/<int:id_user>/', views.update_user, name='UpdateUser')
+    path('update/<int:id_user>/', views.update_user, name='UpdateUser'),
+    ## New charts routes
+    path('dashboard', views.device_charts_page, name='Dashboard'),
+    path('api/device-chart-data/<int:device_id>/', views.device_chart_data, name='device_chart_data'),
 ]
-

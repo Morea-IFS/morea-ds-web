@@ -1,0 +1,599 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block title %}Morea | Gráficos do Dispositivo{% endblock %}
+
+{% block stylesCustom %}
+<style>
+.container {
+    max-width: 98%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.device-selector-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.device-info {
+    background: #e8f4fd;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.device-info h3 {
+    margin: 0 0 8px 0;
+    color: #0056b3;
+}
+
+.device-info p {
+    margin: 4px 0;
+    color: #555;
+}
+
+.stats-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.water-stat {
+    color: #3498db;
+    border-left-color: #3498db;
+}
+
+.energy-stat {
+    color: #f39c12;
+    border-left-color: #f39c12;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.stat-unit {
+    font-size: 0.8rem;
+    color: #999;
+    margin-left: 2px;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.chart-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    border: 1px solid #e9ecef;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.chart-title {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    min-width: 0;
+}
+
+.loading, .no-data, .error-message {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.loading {
+    background: #f8f9fa;
+    color: #007bff;
+    border: 2px dashed #007bff;
+}
+
+.no-data {
+    background: #fff3cd;
+    color: #856404;
+    border: 2px dashed #ffeaa7;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 2px dashed #f5c6cb;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 99%;
+    }
+    
+    .chart-container {
+        height: 450px;
+    }
+    
+    .chart-wrapper {
+        padding: 30px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .container {
+        max-width: 98%;
+    }
+    
+    .chart-container {
+        height: 400px;
+    }
+}
+
+@media (max-width: 767px) {
+    .container {
+        max-width: 98%;
+        padding: 15px;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+    }
+    
+    .stat-card {
+        min-width: 100%;
+    }
+    
+    .chart-container {
+        height: 350px;
+    }
+    
+    .chart-wrapper {
+        padding: 20px;
+    }
+    
+    .chart-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+
+.chart-wrapper,
+.chart-container,
+.charts-container {
+    max-width: none !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1 class="mb-2">Dashboard de Dispositivos</h1>
+        <p class="mb-0">Visualize e analise dados dos seus dispositivos</p>
+    </div>
+    
+    <div class="device-selector-container">
+        <div class="form-group">
+            <label for="device-select" class="form-label fw-bold">Selecione um Dispositivo:</label>
+            <select class="form-select" id="device-select">
+                <option value="">-- Selecione um dispositivo --</option>
+                {% for device in devices %}
+                <option value="{{ device.id }}" data-type="{{ device.type }}" data-location="{{ device.location }}" data-section="{{ device.section }}">
+                    {{ device.name }} - {{ device.get_type_display }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div id="device-info" class="device-info" style="display: none;">
+        <h3 id="device-name"></h3>
+        <p><strong>Tipo:</strong> <span id="device-type"></span></p>
+        <p><strong>Localização:</strong> <span id="device-location"></span></p>
+        <p><strong>Seção:</strong> <span id="device-section"></span></p>
+    </div>
+    
+    <div id="stats-container" class="stats-container" style="display: none;"></div>
+    
+    <div id="loading" class="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        Carregando dados do dispositivo...
+    </div>
+    
+    <div id="no-data" class="no-data" style="display: none;">
+        Nenhum dado disponível para este dispositivo.
+    </div>
+    
+    <div id="error-message" class="error-message" style="display: none;"></div>
+    
+    <div id="charts-container" class="charts-container"></div>
+</div>
+{% endblock %}
+
+{% block scriptsCustom %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+class DeviceCharts {
+    constructor() {
+        this.deviceSelect = document.getElementById('device-select');
+        this.deviceInfo = document.getElementById('device-info');
+        this.statsContainer = document.getElementById('stats-container');
+        this.chartsContainer = document.getElementById('charts-container');
+        this.loadingElement = document.getElementById('loading');
+        this.noDataElement = document.getElementById('no-data');
+        this.errorElement = document.getElementById('error-message');
+        this.currentCharts = [];
+        
+        this.init();
+    }
+    
+    init() {
+        this.deviceSelect.addEventListener('change', (e) => {
+            const deviceId = e.target.value;
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            
+            this.updateDeviceInfo(selectedOption);
+            this.loadDeviceData(deviceId);
+        });
+    }
+    
+    updateDeviceInfo(selectedOption) {
+        if (!selectedOption.value) {
+            this.deviceInfo.style.display = 'none';
+            this.statsContainer.style.display = 'none';
+            return;
+        }
+        
+        const deviceName = selectedOption.text;
+        const deviceType = this.getDeviceTypeText(selectedOption.dataset.type);
+        const deviceLocation = selectedOption.dataset.location || 'Não informada';
+        const deviceSection = selectedOption.dataset.section || 'Não informada';
+        
+        document.getElementById('device-name').textContent = deviceName;
+        document.getElementById('device-type').textContent = deviceType;
+        document.getElementById('device-location').textContent = deviceLocation;
+        document.getElementById('device-section').textContent = deviceSection;
+        
+        this.deviceInfo.style.display = 'block';
+    }
+    
+    getDeviceTypeText(typeId) {
+        const types = {
+            '1': 'Água',
+            '2': 'Energia', 
+            '3': 'Gás'
+        };
+        return types[typeId] || 'Desconhecido';
+    }
+    
+    getUnitForDataType(dataType) {
+        const units = {
+            'Volume (L)': 'L',
+            'kWh': 'kWh',
+            'Ampere': 'A'
+        };
+        return units[dataType] || '';
+    }
+    
+    async loadDeviceData(deviceId) {
+        if (!deviceId) {
+            this.clearCharts();
+            this.hideAllMessages();
+            this.statsContainer.style.display = 'none';
+            return;
+        }
+        
+        this.showLoading();
+        this.clearCharts();
+        this.statsContainer.style.display = 'none';
+        
+        try {
+            const response = await fetch(`/api/device-chart-data/${deviceId}/`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Erro ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.hideLoading();
+            
+            if (Object.keys(data).length === 0) {
+                this.showNoData();
+            } else {
+                this.hideNoData();
+                this.renderStats(data);
+                this.renderCharts(data);
+            }
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            this.hideLoading();
+            this.showError(`Erro ao carregar dados: ${error.message}`);
+        }
+    }
+    
+    renderStats(chartData) {
+        this.statsContainer.innerHTML = '';
+        
+        Object.keys(chartData).forEach(dataType => {
+            const data = chartData[dataType];
+            const stats = data.stats;
+            
+            // Não mostrar estatísticas para Ampere
+            if (dataType === 'Ampere') {
+                return;
+            }
+            
+            const unit = this.getUnitForDataType(dataType);
+            const statClass = dataType === 'Volume (L)' ? 'water-stat' : 'energy-stat';
+            
+            if (stats.current !== undefined && stats.total !== undefined) {
+                const statsHTML = `
+                    <div class="stat-card ${statClass}">
+                        <div class="stat-value">${stats.current.toLocaleString('pt-BR')}<span class="stat-unit">${unit}</span></div>
+                        <div class="stat-label">Consumo Atual</div>
+                    </div>
+                    <div class="stat-card ${statClass}">
+                        <div class="stat-value">${stats.total.toLocaleString('pt-BR')}<span class="stat-unit">${unit}</span></div>
+                        <div class="stat-label">Consumo Total</div>
+                    </div>
+                `;
+                this.statsContainer.innerHTML += statsHTML;
+            }
+        });
+        
+        if (this.statsContainer.innerHTML !== '') {
+            this.statsContainer.style.display = 'flex';
+        }
+    }
+    
+    renderCharts(chartData) {
+        this.chartsContainer.innerHTML = '';
+        
+        Object.keys(chartData).forEach(dataType => {
+            const data = chartData[dataType];
+            
+            const chartWrapper = document.createElement('div');
+            chartWrapper.className = 'chart-wrapper';
+            
+            const chartTitle = document.createElement('div');
+            chartTitle.className = 'chart-title';
+            chartTitle.textContent = `${dataType} - Últimas 24 horas`;
+            
+            const chartCanvas = document.createElement('canvas');
+            chartCanvas.style.width = '100%';
+            chartCanvas.style.height = '100%';
+            
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.appendChild(chartCanvas);
+            
+            chartWrapper.appendChild(chartTitle);
+            chartWrapper.appendChild(chartContainer);
+            this.chartsContainer.appendChild(chartWrapper);
+            
+            this.createChart(chartCanvas, dataType, data);
+        });
+    }
+    
+    createChart(canvas, dataType, data) {
+        const ctx = canvas.getContext('2d');
+        const colors = this.getColorsForDataType(dataType);
+        
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: dataType,
+                    data: data.values,
+                    borderColor: colors.border,
+                    backgroundColor: colors.background,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: colors.border,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        bodyFont: {
+                            size: 14
+                        },
+                        titleFont: {
+                            size: 14
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Horário',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            display: true
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: dataType,
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            display: true
+                        }
+                    }
+                }
+            }
+        });
+        
+        this.currentCharts.push(chart);
+    }
+    
+    getColorsForDataType(dataType) {
+        const colorMap = {
+            'Volume (L)': { border: 'rgba(54, 162, 235, 1)', background: 'rgba(54, 162, 235, 0.1)' },
+            'kWh': { border: 'rgba(255, 159, 64, 1)', background: 'rgba(255, 159, 64, 0.1)' },
+            'Ampere': { border: 'rgba(255, 99, 132, 1)', background: 'rgba(255, 99, 132, 0.1)' }
+        };
+        
+        return colorMap[dataType] || { border: 'rgba(201, 203, 207, 1)', background: 'rgba(201, 203, 207, 0.1)' };
+    }
+    
+    clearCharts() {
+        this.currentCharts.forEach(chart => chart.destroy());
+        this.currentCharts = [];
+        this.chartsContainer.innerHTML = '';
+    }
+    
+    showLoading() {
+        this.loadingElement.style.display = 'block';
+        this.hideNoData();
+        this.hideError();
+    }
+    
+    hideLoading() {
+        this.loadingElement.style.display = 'none';
+    }
+    
+    showNoData() {
+        this.noDataElement.style.display = 'block';
+        this.hideError();
+    }
+    
+    hideNoData() {
+        this.noDataElement.style.display = 'none';
+    }
+    
+    showError(message) {
+        this.errorElement.textContent = message;
+        this.errorElement.style.display = 'block';
+        this.hideNoData();
+    }
+    
+    hideError() {
+        this.errorElement.style.display = 'none';
+    }
+    
+    hideAllMessages() {
+        this.hideLoading();
+        this.hideNoData();
+        this.hideError();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    new DeviceCharts();
+});
+</script>
+{% endblock %}
