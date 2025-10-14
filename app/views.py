@@ -1,5 +1,5 @@
 from django.forms import ValidationError
-from .graphs import generateAllMotes24hRaw
+# from .graphs import generateAllMotes24hRaw 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
@@ -10,9 +10,9 @@ from .models import Device, DeviceLog, Data, Graph, ExtendUser, New
 import os
 from dotenv import load_dotenv
 import json
-
+from django.http import JsonResponse
+from datetime import timedelta
 from .validation import validate
-
 from django.contrib.auth import authenticate, login, logout
 
 load_dotenv()
@@ -29,12 +29,12 @@ def index(request):
     return render(request, 'home.html')
 
 
-def dashboard(request):
-    allWMotes24hRaw = Graph.objects.get(type=1)
-    allEMotes24hRaw = Graph.objects.get(type=2)
-    allGMotes24hRaw = Graph.objects.get(type=3)
+# def dashboard(request):
+#     allWMotes24hRaw = Graph.objects.get(type=1)
+#     allEMotes24hRaw = Graph.objects.get(type=2)
+#     allGMotes24hRaw = Graph.objects.get(type=3)
 
-    return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw, 'gMote': allGMotes24hRaw})
+#     return render(request, 'dashboard.html', {'wMote': allWMotes24hRaw, 'eMote': allEMotes24hRaw, 'gMote': allGMotes24hRaw})
 
 def members(request):
     advisors = ExtendUser.objects.all().filter(
@@ -53,6 +53,10 @@ def news(request):
     gitToken = os.getenv("GITTOKEN")
 
     return render(request, 'news.html', {'internNews': internNews, 'gitToken': gitToken})
+
+def device_charts_view(request):
+    devices = Device.objects.filter(is_authorized=2).order_by('name')
+    return render(request, 'newdashboard.html', {'devices': devices})
 
 ## User pages functions
 
@@ -237,6 +241,27 @@ def device_detail(request, device_id):
   
 # API
 
+@api_view(['GET'])
+def get_device_data(request, device_id, data_type):
+    limit = 288 
+    
+    try:
+        device = Device.objects.get(id=device_id)
+        data_query = Data.objects.filter(device=device, type=data_type).order_by('-collect_date')[:limit]
+        
+        data_list = reversed(list(data_query))
+
+        labels = [(d.collect_date - timedelta(hours=3)).strftime('%H:%M') for d in data_list]
+        values = [d.last_collection for d in data_list]
+
+        return JsonResponse({'labels': labels, 'values': values})
+
+    except Device.DoesNotExist:
+        return JsonResponse({'error': 'Device not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 @api_view(['POST'])
 def authenticateDevice(request):
     if request.method == 'POST':
@@ -339,3 +364,4 @@ def page_in_erro500(request):
 
 def page_in_erro503(request):
     return render(request, 'error_503.html', status=503)
+
