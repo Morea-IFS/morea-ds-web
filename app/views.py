@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, DeviceLog, Data, Graph, ExtendUser, New
+from .models import Device, DeviceLog, Data, Graph, ExtendUser, New, DataTypes
 import os
 from dotenv import load_dotenv
 import json
@@ -98,7 +98,6 @@ def register_user(request):
                                               )
         user.save()
         return render(request, 'register.html', {'user': user, 'message': 'Usuário cadastrado com sucesso'})
-
     return render(request, 'register.html')
 
 @login_required(login_url='/login')
@@ -322,9 +321,70 @@ def storeData(request):
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
 
+# New charts views
+from datetime import timedelta
+import datetime
+from django.http import JsonResponse
 
+def device_charts_page(request):
+    devices = Device.objects.filter(is_authorized=2).order_by('name')
+    return render(request, 'device_charts.html', {'devices': devices})
 
-## Exceptions
+def device_chart_data(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    if device.is_authorized != 2:
+        return JsonResponse({'error': 'Dispositivo não autorizado'}, status=403)
+    if device.type == 1:  
+        data_types = [1]  
+    elif device.type == 2:  
+        data_types = [2, 4] 
+    else: 
+        data_types = [1] 
+    
+    chart_data = {}
+    
+    for data_type in data_types:
+        data_entries = Data.objects.filter(
+            device=device,
+            type=data_type
+        ).order_by('-collect_date')[:288]
+        
+        data_entries = list(reversed(data_entries))
+        
+        if data_entries:
+            data_type_name = DataTypes(data_type).label
+            values = [float(entry.last_collection) for entry in data_entries]
+            
+            current_value = values[-1] if values else 0
+            max_value = max(values) if values else 0
+            
+            if data_type == 1:  
+                total_consumption = sum(values)
+                stats = {
+                    'current': round(current_value, 2),
+                    'max': round(max_value, 2),
+                    'total': round(total_consumption, 2)
+                }
+            elif data_type == 2:
+                total_consumption = sum(values)
+                stats = {
+                    'current': round(current_value, 4),
+                    'max': round(max_value, 4),
+                    'total': round(total_consumption, 4)
+                }
+            elif data_type == 4:  
+                stats = {}
+            
+            chart_data[data_type_name] = {
+                'labels': [(entry.collect_date - timedelta(hours=3)).strftime('%H:%M') 
+                          for entry in data_entries],
+                'values': values,
+                'count': len(data_entries),
+                'stats': stats
+            }
+    
+    return JsonResponse(chart_data)
+
 def page_in_erro403(request, exception):
     return render(request, 'error_403.html', status=403)
 
