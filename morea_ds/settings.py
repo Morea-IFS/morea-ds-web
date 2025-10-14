@@ -56,11 +56,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'morea_ds.urls'
-
+'''
 CRONJOBS = [
         ('0 3 * * *', 'app.graphs.generateAllMotes24hRaw'),
         ('0 * * * *', 'app.data_processing.hourlyDataProcessing')
 ]
+'''
 
 TEMPLATES = [
     {
