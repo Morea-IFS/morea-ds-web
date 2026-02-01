@@ -29,6 +29,12 @@ DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://morea-ifs.org",
+    "https://www.morea-ifs.org",
+    "https://robalo.morea-ifs.org",
+]
+
 
 # Application definition
 
