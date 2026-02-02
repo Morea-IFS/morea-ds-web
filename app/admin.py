@@ -25,7 +25,7 @@ class CustomUserAdmin(UserAdmin):
 
 class DevicesAdmin(admin.ModelAdmin):
     list_display = ['name', 'type',
-                    'section', 'location', 'mac_address', 'ip_address', 'api_token', 'is_authorized']
+                    'section', 'location', 'mac_address', 'ip_address', 'api_token', 'is_authorized', 'voltage']
     
 class DeviceLogsAdmin(admin.ModelAdmin):
     list_display = ['device', 'mac_address', 'ip_address', 'api_token', 'is_authorized', 'created_at']

@@ -35,6 +35,11 @@ class IntervalTypes(models.IntegerChoices):
     notSelected = 0, 'Not Selected',
     hourly = 1, "Hourly"
 
+class VoltageTypes(models.IntegerChoices):
+    notSelected = 0, 'Not Selected',
+    volt127 = 127, '127V',
+    volt220 = 220, '220V'
+
 
 class ExtendUser(AbstractUser):
     profile_photo = models.ImageField(
@@ -78,6 +83,8 @@ class Device(models.Model):
         max_length=255, null=True, blank=True)
     api_token = models.CharField(
         max_length=255, null=True, blank=True, unique=True)
+    voltage = models.IntegerField(
+        choices=VoltageTypes.choices, default=VoltageTypes.notSelected, null=True, blank=True)
 
     def __str__(self):
         if self.name:

@@ -18,10 +18,10 @@
       <strong>Nome:</strong> {{ device.name }}
     </li>
     <li>
-      <strong>Tipo:</strong> {{ device.type }}
+      <strong>Tipo:</strong> {{ device.get_type_display }}
     </li>
     <li>
-      <strong>Autorizado:</strong> {{ device.is_authorized }}
+      <strong>Autorizado:</strong> {{ device.get_is_authorized_display }}
     </li>
     <li>
       <strong>Endereço MAC:</strong> {{ device.mac_address }}
@@ -38,7 +38,9 @@
     <li>
       <strong>Token da API:</strong> {{ device.api_token }}
     </li>
+    <li>
+      <strong>Tensão:</strong> {{ device.get_voltage_display|default:"N/A" }}
+    </li>
   </ul>
 </div>
 {% endblock %}
-

@@ -10,6 +10,8 @@ from .models import Device, DeviceLog, Data, Graph, ExtendUser, New, DataTypes
 import os
 from dotenv import load_dotenv
 import json
+from datetime import timedelta, datetime
+from django.http import JsonResponse
 
 from .validation import validate
 
@@ -233,7 +235,11 @@ def edit_device(request, device_id):
 def device_detail(request, device_id):
     device = get_object_or_404(Device, id=device_id)
     return render(request, 'device_detail.html', {'device': device})
-  
+
+def device_charts_page(request):
+    devices = Device.objects.filter(is_authorized=2).order_by('name')
+    return render(request, 'device_charts.html', {'devices': devices})
+
 # API
 
 @api_view(['POST'])
@@ -246,17 +252,20 @@ def authenticateDevice(request):
 
         if Device.objects.all().filter(mac_address=macAddress, is_authorized=2).exists():
             apiToken = uuid.uuid4()
-
             device = Device.objects.get(mac_address=macAddress)
             device.api_token = str(apiToken)
             device.ip_address = str(deviceIp)
-            
             deviceLog = DeviceLog(device=device, is_authorized=device.is_authorized, mac_address=device.mac_address, ip_address=device.ip_address, api_token=device.api_token)
-            
             device.save()
             deviceLog.save()
-
-            return Response({'api_token': apiToken, 'deviceName': device.name}, status=status.HTTP_200_OK)
+            response_data = {
+                'api_token': str(apiToken),
+                'deviceName': device.name
+            }
+            if device.type == 2: 
+                response_data['voltage'] = device.voltage if device.voltage else 127
+            
+            return Response(response_data, status=status.HTTP_200_OK)
         elif Device.objects.all().filter(mac_address=macAddress).exists():
             apiToken = uuid.uuid4()
             
@@ -292,7 +301,6 @@ def storeData(request):
         macAddress = data['macAddress']
         measure = data["measure"]
     
-    # Device verification
     if not Device.objects.all().filter(api_token=apiToken).exists():
         return Response({'message': 'invalid api token.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -321,69 +329,133 @@ def storeData(request):
     else:
         return Response({'message': 'data not received.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# New charts views
-from datetime import timedelta
-import datetime
-from django.http import JsonResponse
-
-def device_charts_page(request):
-    devices = Device.objects.filter(is_authorized=2).order_by('name')
-    return render(request, 'device_charts.html', {'devices': devices})
-
 def device_chart_data(request, device_id):
     device = get_object_or_404(Device, id=device_id)
+
     if device.is_authorized != 2:
         return JsonResponse({'error': 'Dispositivo não autorizado'}, status=403)
+
+    period = request.GET.get('period', '24h')
+
+    now = datetime.now()
+    if period == '24h':
+        start_date = now - timedelta(hours=24)
+    elif period == '7d':
+        start_date = now - timedelta(days=7)
+    elif period == '30d':
+        start_date = now - timedelta(days=30)
+    else:
+        start_date = now - timedelta(hours=24)
+    
     if device.type == 1:  
-        data_types = [1]  
-    elif device.type == 2:  
-        data_types = [2, 4] 
-    else: 
         data_types = [1] 
+    elif device.type == 2: 
+        data_types = [2, 4]  
+    elif device.type == 3: 
+        data_types = [3] 
+    else:
+        data_types = [1]  
     
-    chart_data = {}
+
+    response_data = {
+        'device_id': device.id,
+        'device_name': device.name,
+        'device_type': device.type,
+        'period': period,
+        'stats': {},
+        'consumption_summary': {},
+        'charts': {}
+    }
     
+
     for data_type in data_types:
-        data_entries = Data.objects.filter(
-            device=device,
-            type=data_type
-        ).order_by('-collect_date')[:288]
-        
-        data_entries = list(reversed(data_entries))
-        
-        if data_entries:
+        try:
             data_type_name = DataTypes(data_type).label
-            values = [float(entry.last_collection) for entry in data_entries]
             
-            current_value = values[-1] if values else 0
-            max_value = max(values) if values else 0
+
+            data_entries = Data.objects.filter(
+                device=device,
+                type=data_type,
+                collect_date__gte=start_date
+            ).order_by('collect_date')
             
-            if data_type == 1:  
-                total_consumption = sum(values)
-                stats = {
-                    'current': round(current_value, 2),
-                    'max': round(max_value, 2),
-                    'total': round(total_consumption, 2)
+            if not data_entries.exists():
+                continue
+            
+            labels = []
+            values = []
+            total_consumption = 0
+            
+            for entry in data_entries:
+                local_time = entry.collect_date - timedelta(hours=3)
+                
+                if period == '24h':
+                    label = local_time.strftime('%H:%M')
+                elif period == '7d':
+                    label = local_time.strftime('%d/%m %Hh')
+                else:  
+                    label = local_time.strftime('%d/%m')
+                
+                labels.append(label)
+                values.append(float(entry.last_collection))
+                total_consumption += float(entry.last_collection)
+            
+            if values:
+                current_value = values[-1]
+                max_value = max(values)
+                min_value = min(values)
+                avg_value = sum(values) / len(values)
+                
+
+                trend = 0
+                if len(values) > 1:
+                    previous_value = values[-2] if len(values) >= 2 else values[0]
+                    if previous_value > 0:
+                        trend = ((current_value - previous_value) / previous_value) * 100
+                
+                response_data['stats'][data_type_name] = {
+                    'current': round(current_value, 3),
+                    'max': round(max_value, 3),
+                    'min': round(min_value, 3),
+                    'average': round(avg_value, 3),
+                    'trend': round(trend, 1)
                 }
-            elif data_type == 2:
-                total_consumption = sum(values)
-                stats = {
-                    'current': round(current_value, 4),
-                    'max': round(max_value, 4),
-                    'total': round(total_consumption, 4)
+                
+                response_data['consumption_summary'][data_type_name] = {
+                    'total': round(total_consumption, 3),
+                    'average': round(avg_value, 3),
+                    'count': len(values)
                 }
-            elif data_type == 4:  
-                stats = {}
-            
-            chart_data[data_type_name] = {
-                'labels': [(entry.collect_date - timedelta(hours=3)).strftime('%H:%M') 
-                          for entry in data_entries],
-                'values': values,
-                'count': len(data_entries),
-                'stats': stats
-            }
+                
+                if data_type in [1, 3]: 
+                    if data_type == 1:  
+                        kwh_equivalent = total_consumption * 0.3 / 1000 
+                    elif data_type == 3: 
+                        kwh_equivalent = total_consumption * 10.55 / 1000 
+                    
+                    response_data['consumption_summary'][data_type_name]['kwh_equivalent'] = round(kwh_equivalent, 2)
+                
+                if len(values) > 100:
+                    step = len(values) // 50
+                    sampled_labels = labels[::step]
+                    sampled_values = values[::step]
+                else:
+                    sampled_labels = labels
+                    sampled_values = values
+                
+                response_data['charts'][data_type_name] = {
+                    'labels': sampled_labels,
+                    'values': sampled_values,
+                    'count': len(sampled_values)
+                }
+                
+        except Exception as e:
+            print(f"Erro processando tipo {data_type}: {str(e)}")
+            continue
     
-    return JsonResponse(chart_data)
+    return JsonResponse(response_data)
+
+# Error pages
 
 def page_in_erro403(request, exception):
     return render(request, 'error_403.html', status=403)
