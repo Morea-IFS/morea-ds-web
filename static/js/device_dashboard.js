@@ -13,7 +13,6 @@ class DeviceDashboard {
     }
     
     bindEvents() {
-        // Device card selection
         document.addEventListener('click', (e) => {
             const deviceCard = e.target.closest('.device-card');
             if (deviceCard) {
@@ -104,6 +103,11 @@ class DeviceDashboard {
         
         document.getElementById('period-summary-text').textContent = periodText;
     }
+    getFriendlyName(dataType) {
+        if (dataType.includes('Volume')) return 'Vazão';
+        if (dataType.includes('Ampere') || dataType.includes('Gás')) return 'Corrente';
+        return dataType;
+    }
     
     renderStats(stats) {
         const statsGrid = document.getElementById('stats-grid');
@@ -116,6 +120,7 @@ class DeviceDashboard {
             const unit = this.getUnitForDataType(dataType);
             const colorClass = this.getColorClassForDataType(dataType);
             const comparison = data.trend !== undefined ? data.trend : 0;
+            const displayName = this.getFriendlyName(dataType);
             
             return `
                 <div class="stat-card ${colorClass}-stat">
@@ -123,7 +128,7 @@ class DeviceDashboard {
                         ${this.formatNumber(data.current, dataType)}
                         <span class="stat-unit">${unit}</span>
                     </div>
-                    <div class="stat-label">${dataType} Atual</div>
+                    <div class="stat-label">${displayName} Atual</div>
                     ${comparison !== 0 ? `
                         <div class="stat-comparison ${comparison > 0 ? 'comparison-up' : 'comparison-down'}">
                             ${comparison > 0 ? '↑' : '↓'} ${Math.abs(comparison).toFixed(1)}%
@@ -144,17 +149,19 @@ class DeviceDashboard {
         }
         
         const summaryHTML = Object.entries(summary).map(([dataType, data]) => {
+            if (dataType.includes('Ampere') || dataType.includes('Corrente')) {
+                return '';
+            }
+
             const unit = this.getUnitForDataType(dataType);
-            
+            const displayName = this.getFriendlyName(dataType);
+
             return `
                 <div class="summary-card">
-                    <div class="summary-title">Consumo Total (${dataType})</div>
+                    <div class="summary-title">Consumo Total (${displayName})</div>
                     <div class="summary-value">
                         ${this.formatNumber(data.total, dataType)}
                         <span class="stat-unit">${unit}</span>
-                    </div>
-                    <div class="summary-detail">
-                        Média: ${this.formatNumber(data.average, dataType)}${unit}/hora
                     </div>
                     ${data.kwh_equivalent ? `
                         <div class="summary-detail">
@@ -182,13 +189,14 @@ class DeviceDashboard {
             const chartId = `chart-${Date.now()}-${index}`;
             const colorClass = this.getColorClassForDataType(dataType);
             const unit = this.getUnitForDataType(dataType);
+            const displayName = this.getFriendlyName(dataType);
             
             const chartHTML = `
                 <div class="chart-container">
                     <div class="chart-header">
                         <div class="chart-title">
                             <i class="icon-${colorClass}"></i>
-                            ${dataType}
+                            ${displayName}
                         </div>
                         <div class="chart-period">${this.getPeriodLabel()}</div>
                     </div>
@@ -199,8 +207,7 @@ class DeviceDashboard {
             `;
             
             chartsGrid.innerHTML += chartHTML;
-            
-            // Aguardar um frame para o DOM ser atualizado
+
             requestAnimationFrame(() => {
                 this.createChart(chartId, dataType, data, unit);
             });
@@ -213,8 +220,8 @@ class DeviceDashboard {
         
         const ctx = canvas.getContext('2d');
         const colors = this.getColorsForDataType(dataType);
+        const displayName = this.getFriendlyName(dataType);
         
-        // Destruir chart anterior se existir
         if (this.charts[canvasId]) {
             this.charts[canvasId].destroy();
         }
@@ -224,7 +231,7 @@ class DeviceDashboard {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: `${dataType} (${unit})`,
+                    label: `${displayName} (${unit})`,
                     data: data.values,
                     borderColor: colors.border,
                     backgroundColor: colors.background,
@@ -278,7 +285,7 @@ class DeviceDashboard {
                         callbacks: {
                             label: (context) => {
                                 const value = context.parsed.y;
-                                return `${dataType}: ${this.formatNumber(value, dataType)} ${unit}`;
+                                return `${displayName}: ${this.formatNumber(value, dataType)} ${unit}`;
                             }
                         }
                     }
@@ -348,7 +355,7 @@ class DeviceDashboard {
     getColorClassForDataType(dataType) {
         if (dataType.includes('Volume') || dataType.includes('Água')) return 'water';
         if (dataType.includes('kWh') || dataType.includes('Energia')) return 'energy';
-        if (dataType.includes('Ampere') || dataType.includes('Gás')) return 'gas';
+        if (dataType.includes('Ampere') || dataType.includes('Gás') || dataType.includes('Corrente')) return 'gas';
         return 'water';
     }
     
@@ -416,7 +423,6 @@ class DeviceDashboard {
     }
 }
 
-// Inicializar dashboard quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
     window.deviceDashboard = new DeviceDashboard();
 });
