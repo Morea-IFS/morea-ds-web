@@ -15,10 +15,10 @@
     <form method="POST">
       {% csrf_token %}
       {% for field in form %}
-      <div class="form-group">
+      <div class="form-group" id="form-group-{{ field.name }}">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {% if field.name == 'type' %}
-        <select name="type" id="type" class="form-control">
+        <select name="type" id="device-type-select" class="form-control">
           <option value="">Tipo</option>
           <option value="1" {% if field.value == '1' %}selected{% endif %}>Água</option>
           <option value="2" {% if field.value == '2' %}selected{% endif %}>Energia</option>
@@ -30,6 +30,12 @@
           <option value="0" {% if field.value == '0' %}selected{% endif %}>Pendente</option>
           <option value="1" {% if field.value == '1' %}selected{% endif %}>Não Autorizado</option>
           <option value="2" {% if field.value == '2' %}selected{% endif %}>Autorizado</option>
+        </select>
+        {% elif field.name == 'voltage' %}
+        <select name="voltage" id="voltage-select" class="form-control">
+          <option value="">Tensão</option>
+          <option value="127" {% if field.value == '127' %}selected{% endif %}>127V</option>
+          <option value="220" {% if field.value == '220' %}selected{% endif %}>220V</option>
         </select>
         {% else %}
         {{ field }}
@@ -48,4 +54,20 @@
   </div>
 </div>
 <script src="{% static 'js/error.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('device-type-select');
+    const voltageField = document.getElementById('form-group-voltage');
+    
+    function toggleVoltageField() {
+        if (typeSelect.value === '2') {
+            voltageField.style.display = 'block';
+        } else {
+            voltageField.style.display = 'none';
+        }
+    }
+    toggleVoltageField();
+    typeSelect.addEventListener('change', toggleVoltageField);
+});
+</script>
 {% endblock %}
