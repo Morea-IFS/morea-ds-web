@@ -455,6 +455,12 @@ def device_chart_data(request, device_id):
     
     return JsonResponse(response_data)
 
+def device_fullscreen(request, device_id):
+    device = get_object_or_404(Device, id=device_id)
+    if device.is_authorized != 2:
+        return render(request, 'error_403.html', status=403)
+        
+    return render(request, 'device_fullscreen.html', {'device': device})
 # Error pages
 
 def page_in_erro403(request, exception):

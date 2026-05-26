@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integração de Gráfico - {{ device.name }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/device_dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="fullscreen-layout">
+        
+        <div class="dashboard-controls" style="margin-bottom: 0;">
+            <div class="device-info-header" style="border-top: none; padding-top: 0; margin-bottom: 1.5rem;">
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    {% if device.type == 1 %}
+                        <i class="fas fa-faucet" style="color: #3498db;"></i>
+                    {% elif device.type == 2 %}
+                        <i class="fas fa-bolt" style="color: #f39c12;"></i>
+                    {% else %}
+                        <i class="fas fa-fire-alt" style="color: #e74c3c;"></i>
+                    {% endif %}
+                    {{ device.name }}
+                </h2>
+                <div class="period-summary">
+                    <span id="period-summary-text">Últimas 24 horas</span>
+                </div>
+            </div>
+            
+            <div class="time-period-selector" style="margin-bottom: 0;">
+                <button class="time-period-btn active" data-period="24h">
+                    <i class="far fa-clock"></i> Últimas 24 horas
+                </button>
+                <button class="time-period-btn" data-period="7d">
+                    <i class="far fa-calendar"></i> Últimos 7 dias
+                </button>
+                <button class="time-period-btn" data-period="30d">
+                    <i class="fas fa-calendar-alt"></i> Últimos 30 dias
+                </button>
+            </div>
+        </div>
+
+        <div class="charts-section fullscreen-chart">
+            <div id="loading-container" class="loading-container" style="display: none; height: 100%; box-shadow: none;">
+                <div class="loading-spinner"></div>
+                <h3>Carregando dados...</h3>
+            </div>
+            
+            <div class="charts-grid" id="charts-wrapper">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title" id="chart-main-title">
+                            <i class="fas fa-chart-line"></i> Carregando...
+                        </div>
+                        <div class="chart-period" id="chart-period-badge">Últimas 24 horas</div>
+                    </div>
+                    <div class="chart-canvas-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const deviceId = {{ device.id }};
+        const deviceType = {{ device.type }};
+        let chartInstance = null;
+
+        // Reproduzindo a sua lógica exata de formatação de números
+        function formatNumber(value, dataType) {
+            if (value === null || value === undefined) return '0';
+            if (dataType.includes('kWh') || dataType === 'Consumo Energia') {
+                return value.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+            } else if (dataType.includes('Ampere') || dataType === 'Corrente') {
+                return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                return value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            }
+        }
+
+        // Reproduzindo as suas unidades e nomes
+        function getUnitForDataType(dataType) {
+            const units = {
+                'Volume (L)': 'L', 'kWh': 'kWh', 'Ampere': 'A',
+                'Volume Água': 'L', 'Consumo Energia': 'kWh', 'Corrente': 'A'
+            };
+            return units[dataType] || '';
+        }
+
+        function getFriendlyName(dataType) {
+            if (dataType.includes('Volume')) return 'Vazão';
+            if (dataType.includes('Ampere') || dataType.includes('Gás')) return 'Corrente';
+            return dataType;
+        }
+
+        // Reproduzindo a sua paleta de cores original
+        function getColorsForDataType(dataType) {
+            if (dataType.includes('Volume') || dataType.includes('Água')) {
+                return { border: 'rgba(52, 152, 219, 1)', background: 'rgba(52, 152, 219, 0.1)', icon: 'water' };
+            } else if (dataType.includes('kWh') || dataType.includes('Energia')) {
+                return { border: 'rgba(243, 156, 18, 1)', background: 'rgba(243, 156, 18, 0.1)', icon: 'energy' };
+            } else {
+                return { border: 'rgba(231, 76, 60, 1)', background: 'rgba(231, 76, 60, 0.1)', icon: 'gas' };
+            }
+        }
+
+        function getPeriodLabel(period) {
+            return {
+                '24h': 'Últimas 24 horas',
+                '7d': 'Últimos 7 dias',
+                '30d': 'Últimos 30 dias'
+            }[period];
+        }
+
+        async function fetchAndRenderChart(period = '24h') {
+            document.getElementById('loading-container').style.display = 'flex';
+            document.getElementById('charts-wrapper').style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/device-chart-data/${deviceId}/?period=${period}`);
+                const data = await response.json();
+                
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('charts-wrapper').style.display = 'block';
+
+                if (data.error || Object.keys(data.charts).length === 0) {
+                    document.getElementById('charts-wrapper').innerHTML = '<div class="empty-state"><h3>Nenhum gráfico disponível</h3></div>';
+                    return;
+                }
+
+                // Pega a primeira métrica principal do dispositivo
+                const chartKeys = Object.keys(data.charts);
+                const dataType = chartKeys[0];
+                const mainChartData = data.charts[dataType];
+                
+                const unit = getUnitForDataType(dataType);
+                const displayName = getFriendlyName(dataType);
+                const colors = getColorsForDataType(dataType);
+
+                // Atualizando os textos da UI
+                const periodLabel = getPeriodLabel(period);
+                document.getElementById('period-summary-text').textContent = periodLabel;
+                document.getElementById('chart-period-badge').textContent = periodLabel;
+                document.getElementById('chart-main-title').innerHTML = `<i class="icon-${colors.icon}"></i> ${displayName}`;
+
+                const ctx = document.getElementById('deviceChart').getContext('2d');
+                
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                // Configuração exata extraída do seu device_dashboard.js
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: mainChartData.labels,
+                        datasets: [{
+                            label: `${displayName} (${unit})`,
+                            data: mainChartData.values,
+                            borderColor: colors.border,
+                            backgroundColor: colors.background,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: colors.border,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 3,
+                            pointHoverBorderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: { size: 14, family: "'Segoe UI', sans-serif" },
+                                    color: '#2c3e50',
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(44, 62, 80, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                titleFont: { size: 13, family: "'Segoe UI', sans-serif" },
+                                bodyFont: { size: 13, family: "'Segoe UI', sans-serif" },
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: (context) => {
+                                        const value = context.parsed.y;
+                                        return `${displayName}: ${formatNumber(value, dataType)} ${unit}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
+                                ticks: {
+                                    font: { size: 12, family: "'Segoe UI', sans-serif" },
+                                    color: '#7f8c8d',
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
+                                ticks: {
+                                    font: { size: 12, family: "'Segoe UI', sans-serif" },
+                                    color: '#7f8c8d',
+                                    callback: (value) => formatNumber(value, dataType)
+                                },
+                                title: {
+                                    display: true,
+                                    text: unit,
+                                    color: '#7f8c8d',
+                                    font: { size: 12, family: "'Segoe UI', sans-serif", weight: 'bold' }
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Erro no processamento do Gráfico:", error);
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('charts-wrapper').innerHTML = '<div class="error-message">Erro ao carregar dados do dispositivo.</div>';
+                document.getElementById('charts-wrapper').style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndRenderChart('24h');
+
+            document.querySelectorAll('.time-period-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const button = e.target.closest('.time-period-btn');
+                    document.querySelectorAll('.time-period-btn').forEach(b => b.classList.remove('active'));
+                    button.classList.add('active');
+                    fetchAndRenderChart(button.dataset.period);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
