@@ -6,12 +6,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import uuid
-from .models import Device, DeviceLog, Data, Graph, ExtendUser, New, DataTypes
+from .models import Device, DeviceLog, Data, Graph, ExtendUser, New, DataTypes, DeviceTypes
 import os
 from dotenv import load_dotenv
 import json
 from datetime import timedelta, datetime
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+import csv
 
 from .validation import validate
 
@@ -207,6 +208,10 @@ def device_list(request):
     locations = Device.objects.values_list('location', flat=True).distinct()
     sections = Device.objects.values_list('section', flat=True).distinct()
 
+    # Variaveis para a exportacao
+    authorized_devices = Device.objects.filter(is_authorized=2).order_by('name')
+    device_types = DeviceTypes.choices
+
     context = {
         'devices': devices,
         'locations': locations,
@@ -215,6 +220,8 @@ def device_list(request):
         'filter_location': filter_location,
         'filter_section': filter_section,
         'filter_authorized': filter_authorized,
+        'authorized_devices': authorized_devices,
+        'device_types': device_types,
     }
     return render(request, 'device_list.html', context)
 
@@ -239,6 +246,45 @@ def device_detail(request, device_id):
 def device_charts_page(request):
     devices = Device.objects.filter(is_authorized=2).order_by('name')
     return render(request, 'device_charts.html', {'devices': devices})
+
+
+# View de Exportacao
+@login_required(login_url='/login')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login')
+def export_data_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="dados_de_consumo.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Dispositivo', 'Tipo', 'Ultima Coleta', 'Total', 'Data da Coleta'])
+
+    device_type = request.GET.get('device_type')
+    selected_devices = request.GET.getlist('devices') 
+
+    dados = Data.objects.all().select_related('device')
+
+    if device_type and device_type != 'all':
+        dados = dados.filter(device__type=device_type)
+
+    if selected_devices and 'all' not in selected_devices:
+        dados = dados.filter(device_id__in=selected_devices)
+
+    for obj in dados.iterator():
+        data_formatada = obj.collect_date.strftime("%d/%m/%Y %H:%M:%S") if obj.collect_date else ''
+        tipo_nome = obj.get_type_display()
+        nome_dispositivo = obj.device.name if obj.device else 'Sem Dispositivo'
+
+        writer.writerow([
+            obj.id,
+            nome_dispositivo,
+            tipo_nome,
+            obj.last_collection,
+            obj.total,
+            data_formatada
+        ])
+
+    return response
+
 
 # API
 

@@ -48,35 +48,84 @@
         </div>
         <button type="submit">Filtrar</button>
     </form>
+    <form method="GET" action="{% url 'ExportDataCSV' %}" id="export-form">
+        <input type="hidden" name="device_type" value="all">
+        
+        <table class="device-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input type="checkbox" id="select-all" title="Selecionar todos os dispositivos listados">
+                    </th>
+                    <th>Nome</th>
+                    <th>Seção/Localização</th>
+                    <th>Endereço IP</th>
+                    <th>Endereço MAC</th>
+                    <th>Ver mais</th>
+                    <th>Atualizar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in devices %}
+                <tr>
+                    <td class="checkbox-column">
+                        <input type="checkbox" name="devices" value="{{ device.id }}" class="device-checkbox">
+                    </td>
+                    <td>{{ device.name }}</td>
+                    <td>{{ device.section }} / {{ device.location }}</td>
+                    <td>{{ device.ip_address }}</td>
+                    <td>{{ device.mac_address }}</td>
+                    <td>
+                        <a href="{% url 'device_detail' device.id %}"><i class="fas fa-info-circle"></i></a>
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_device' device.id %}"><i class="fas fa-edit"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <table class="device-table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Seção/Localização</th>
-                <th>Endereço IP</th>
-                <th>Endereço MAC</th>
-                <th>Ver mais</th>
-                <th>Atualizar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for device in devices %}
-            <tr>
-                <td>{{ device.name }}</td>
-                <td>{{ device.section }} / {{ device.location }}</td>
-                <td>{{ device.ip_address }}</td>
-                <td>{{ device.mac_address }}</td>
-                <td>
-                    <a href="{% url 'device_detail' device.id %}"><i class="fas fa-info-circle"></i></a>
-                </td>
-                <td>
-                    <a href="{% url 'edit_device' device.id %}"><i class="fas fa-edit"></i></a>
-                </td>
-
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <div id="export-bar" class="export-bar">
+            <button type="submit" class="btn-export">
+                <i class="fas fa-download"></i> Exportar Dados Selecionados
+            </button>
+        </div>
+    </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const deviceCheckboxes = document.querySelectorAll('.device-checkbox');
+    const exportBar = document.getElementById('export-bar');
+    function toggleExportBar() {
+        const anyChecked = Array.from(deviceCheckboxes).some(cb => cb.checked);
+        if (anyChecked) {
+            exportBar.style.display = 'block';
+        } else {
+            exportBar.style.display = 'none';
+        }
+    }
+
+    selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        deviceCheckboxes.forEach(cb => {
+            cb.checked = isChecked;
+        });
+        toggleExportBar();
+    });
+
+    deviceCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (!this.checked) {
+                selectAllCheckbox.checked = false;
+            } else if (Array.from(deviceCheckboxes).every(c => c.checked)) {
+                selectAllCheckbox.checked = true;
+            }
+            toggleExportBar();
+        });
+    });
+});
+</script>
 {% endblock %}

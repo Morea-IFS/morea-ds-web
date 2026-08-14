@@ -108,6 +108,35 @@ form button:hover {
     text-decoration: underline;
 }
 
+.export-bar {
+    display: none;
+    margin-top: 20px; 
+    text-align: right;
+}
+
+.btn-export {
+    background-color: var(--color-main); 
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-export:hover {
+    background-color: #2980b9; 
+}
+
+.checkbox-column {
+    width: 40px;
+    text-align: center !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -123,6 +152,14 @@ form button:hover {
     }
 
     form button {
+        width: 100%;
+    }
+    
+    .export-bar {
+        text-align: center;
+    }
+    
+    .btn-export {
         width: 100%;
     }
 }

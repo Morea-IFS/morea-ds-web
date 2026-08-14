@@ -11,6 +11,7 @@ urlpatterns = [
     ## General
     path('', views.index, name="Home"),
     path('admin-dashboard', views.admin_dashboard, name='AdminDashboard'),
+    path('export-data-csv/', views.export_data_csv, name='ExportDataCSV'),
     path('members', views.members, name="Members"),
     path('news', views.news, name="News"),
     
