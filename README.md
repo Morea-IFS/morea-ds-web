@@ -10,7 +10,6 @@ Sistema do MOREA para monitorar o consumo de água, energia e gás: os dispositi
 
 - CI roda a cada push na `develop` e na `main` e em todo pull request.
 - O deploy ainda não é automático: quem cuida do servidor puxa a imagem (seção 7) ou liga o deploy automático (seção 7.4).
-- **O `requirements.txt` tem dois blocos de versões e o `pip install` falha** (`ResolutionImpossible`). Enquanto isso não for corrigido, o build da imagem, o CI e o release falham. A correção é apagar as linhas 27 a 40 (bloco com `Django==6.0.5`): esse bloco exige Python 3.12 e não tem `djangorestframework`, `pillow` nem `gunicorn`, que o projeto usa. Com só o bloco das linhas 1 a 26, a imagem foi montada e testada.
 
 ## 2. Dependências
 
