@@ -1,0 +1,89 @@
+name: Release
+
+# Roda quando uma Release é publicada no GitHub (o processo manual da equipe continua igual).
+# Só publica a imagem no GHCR: não cria tag nem Release e não faz deploy.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write # publicar no GHCR
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/morea-ifs/morea-ds-web
+  # Valores falsos só para os testes (a máquina é apagada no fim)
+  SECRET_KEY: ci-inseguro
+  ENVIRONMENT: PROD
+  DBTYPE: MySQL
+  DBNAME: spark
+  DBUSER: root
+  DBPASSWORD: root_ci
+  DBHOST: 127.0.0.1
+  DBPORT: "3306"
+
+jobs:
+  # Mesmos passos do job test do ci.yml: nunca publicar sem testar o commit exato da Release
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4.3
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: spark
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.5"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py migrate --noinput
+      - run: python manage.py test
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versão a partir da tag da Release
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"   # v1.3.0 -> 1.3.0
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build e publicação da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # "latest" só quando a Release não é pre-release
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ steps.version.outputs.prerelease == 'false' && format('{0}:latest', env.IMAGE) || '' }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
