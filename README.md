@@ -4,12 +4,12 @@ Sistema do MOREA para monitorar o consumo de água, energia e gás: os dispositi
 
 - Django 5.0, Python 3.11.5
 - MySQL 8, nginx para os arquivos estáticos e a mídia
-- Roda em Docker. A cada Release publicada no GitHub, o GitHub publica a imagem em `ghcr.io/morea-ifs/morea-ds-web`.
+- Roda em Docker. A cada tag `v*`, o GitHub publica a imagem em `ghcr.io/morea-ifs/morea-ds-web`, cria uma Release e, se a AWS estiver configurada, atualiza o servidor (EC2).
 
 ## 1. Situação atual
 
 - CI roda a cada push na `develop` e na `main` e em todo pull request.
-- O deploy ainda não é automático: quem cuida do servidor puxa a imagem (seção 7) ou liga o deploy automático (seção 7.4).
+- O deploy automático na EC2 já está no `release.yml`, mas só roda depois que a AWS for configurada (seção 7.4). Até lá, a tag publica a imagem e a Release, e o job de deploy é pulado.
 
 ## 2. Dependências
 
@@ -99,26 +99,29 @@ Há também o `django.yml`, CI antigo mantido pela equipe. Ele roda em push em q
 
 ## 6. Como publicar uma versão (CD)
 
-Fluxo de branches: trabalho em `feature/*` → PR para `develop` → PR para `main` → Release a partir da `main`. Push e merge **nunca** publicam nada; só a Release publica.
-
-A Release continua sendo criada como a equipe já faz, pela página https://github.com/Morea-IFS/morea-ds-web/releases (*Draft a new release*, tag nova a partir da `main`) ou pelo terminal:
+Fluxo de branches: trabalho em `feature/*` → PR para `develop` → PR para `main` → tag na `main`. Push e merge **nunca** publicam nada; só a tag publica.
 
 ```bash
-gh release create v1.3.0 --target main --generate-notes   # este comando dispara o release
+git fetch origin
+git tag v1.3.0 origin/main      # marca o commit atual da main
+git push origin v1.3.0          # este push dispara o release
 ```
 
 O `.github/workflows/release.yml` então:
 
-1. roda os mesmos testes do CI no commit da Release;
-2. monta a imagem e publica `ghcr.io/morea-ifs/morea-ds-web:1.3.0` e `ghcr.io/morea-ifs/morea-ds-web:latest`.
+1. roda os mesmos testes do CI no commit da tag;
+2. monta a imagem e publica `ghcr.io/morea-ifs/morea-ds-web:1.3.0` e `ghcr.io/morea-ifs/morea-ds-web:latest`;
+3. cria a Release em https://github.com/Morea-IFS/morea-ds-web/releases com as notas geradas dos PRs;
+4. atualiza a EC2 para a versão nova (job `deploy`, só quando a AWS está configurada, ver 7.4).
 
 Regras:
 
 - Numeração (SemVer), continuando as Releases existentes (a última é `v1.2.1`): `v1.2.2` correção, `v1.3.0` funcionalidade nova, `v2.0.0` mudança que quebra compatibilidade.
-- Release marcada como **pre-release** **não** recebe `latest`. Use para testar antes da versão final.
-- Uma tag não se reaproveita. Se o release falhar, corrija e crie a próxima (`v1.3.1`).
+- Não crie a Release pela página do GitHub: o workflow cria. Basta a tag.
+- Tag com sufixo (`v1.3.0-rc1`) vira **pre-release**, **não** recebe `latest` e **não** faz deploy. Use para testar antes da versão final.
+- Uma tag não se reaproveita. Se o release falhar, corrija e crie a próxima (`-rc2`, `v1.3.1`).
 - Acompanhe em https://github.com/Morea-IFS/morea-ds-web/actions (workflow "Release").
-- Nenhum secret precisa ser cadastrado: o workflow usa o `GITHUB_TOKEN` automático.
+- Para publicar a imagem e a Release não é preciso cadastrar nada: o workflow usa o `GITHUB_TOKEN` automático. O deploy precisa das variáveis da seção 7.4.
 
 ## 7. Rodar a imagem publicada (deploy)
 
@@ -176,24 +179,41 @@ docker run -d --name spark-cron --network spark \
 
 Para atualizar: troque a versão da imagem e reinicie. Para voltar atrás: aponte para a versão anterior, que continua no GHCR.
 
-### 7.4 Deploy automático na AWS (opcional)
+### 7.4 Deploy automático na EC2
 
-Hoje o `release.yml` termina ao publicar a imagem. Para o servidor atualizar sozinho a cada Release, acrescente um passo no fim do job `publish`. Exemplo para EC2 com o SSM (sem abrir SSH):
+O job `deploy` do `release.yml` atualiza a EC2 a cada tag de versão final. Ele usa o **SSM** da AWS (não abre SSH) e entra na AWS por **OIDC** (nenhuma chave da AWS fica guardada no GitHub). Na EC2, ele roda:
 
-```yaml
-      - name: Credenciais da AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}   # IAM role com permissão de ssm:SendCommand
-          aws-region: us-east-1
-      - name: Deploy na EC2
-        run: >
-          aws ssm send-command --document-name AWS-RunShellScript
-          --targets Key=tag:Name,Values=spark
-          --parameters 'commands=["cd /opt/spark && docker compose pull && docker compose up -d"]'
+```bash
+cd /opt/spark && export SPARK_TAG=<versão> && docker compose pull && docker compose up -d
 ```
 
-O que isso exige do lado da AWS: uma instância EC2 com Docker, o SSM Agent e o compose em `/opt/spark` apontando para `ghcr.io/morea-ifs/morea-ds-web:latest`, uma IAM role que o GitHub possa assumir (OIDC; o workflow também precisa de `id-token: write` em `permissions`) e o segredo `AWS_DEPLOY_ROLE` cadastrado em *Settings → Secrets* do repositório. Para ECS ou EKS a ideia é a mesma: um passo final que manda o serviço puxar a imagem nova.
+e espera o resultado: se o comando falhar na EC2, o job fica vermelho.
+
+O job só roda quando estas **variáveis** existem no repositório, em *Settings → Secrets and variables → Actions → Variables* (não são segredos: são identificadores):
+
+| Variável | Valor | Obrigatória |
+|---|---|---|
+| `AWS_DEPLOY_ROLE` | ARN da IAM role que o GitHub assume (ex.: `arn:aws:iam::123456789012:role/spark-deploy`) | sim |
+| `EC2_INSTANCE_ID` | id da instância (ex.: `i-0abc123...`) | sim |
+| `AWS_REGION` | região da instância | não (padrão `us-east-1`) |
+| `DEPLOY_PATH` | pasta do compose na EC2 | não (padrão `/opt/spark`) |
+
+Sem `AWS_DEPLOY_ROLE` ou `EC2_INSTANCE_ID`, o job `deploy` é pulado e o release termina verde.
+
+O que precisa existir do lado da AWS (feito por quem cuida da conta):
+
+1. **Provedor OIDC do GitHub** no IAM (`token.actions.githubusercontent.com`, audiência `sts.amazonaws.com`).
+2. **IAM role** com relação de confiança nesse provedor, limitada ao repositório e às tags (`repo:Morea-IFS/morea-ds-web:ref:refs/tags/v*`), e permissão `ssm:SendCommand` (documento `AWS-RunShellScript` e a instância) e `ssm:GetCommandInvocation`.
+3. **EC2** com Docker + plugin Compose e o **SSM Agent** ativo, com um perfil de instância que tenha a política `AmazonSSMManagedInstanceCore`.
+4. Em `/opt/spark` na EC2: o `docker-compose.yml` deste repositório com duas mudanças nos serviços `web` e `cron` (trocar `build: .` pela imagem) e as variáveis de produção (seção 7.2) no lugar das de desenvolvimento, mais o `docker/nginx.conf`:
+
+   ```yaml
+       image: ghcr.io/morea-ifs/morea-ds-web:${SPARK_TAG:-latest}
+   ```
+
+5. Se o pacote do GHCR estiver privado: `docker login ghcr.io` na EC2 com um token de escopo `read:packages`.
+
+Para voltar atrás: na EC2, `cd /opt/spark && export SPARK_TAG=<versão anterior> && docker compose up -d`.
 
 ## 8. Estrutura do projeto
 
@@ -219,7 +239,7 @@ morea-ds-web/
 ├── install.sh               # instalação antiga, sem Docker
 ├── .github/workflows/
 │   ├── ci.yml               # testes e smoke test da imagem
-│   ├── release.yml          # Release publicada → imagem no GHCR
+│   ├── release.yml          # tag v* → imagem no GHCR + Release + deploy na EC2
 │   └── django.yml           # CI antigo da equipe
 ├── Dockerfile
 ├── docker-compose.yml       # ambiente local: nginx + web + cron + MySQL
