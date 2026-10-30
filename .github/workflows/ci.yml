@@ -1,0 +1,97 @@
+name: CI
+
+# Roda a cada push na develop e na main e em todo pull request.
+# Não faz deploy nem publica imagem (a imagem é publicada pelo release.yml).
+# O django.yml antigo continua como está.
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Valores falsos, só para o CI (a máquina é apagada no fim). Nada de .env baixado.
+env:
+  SECRET_KEY: ci-inseguro
+  ENVIRONMENT: PROD
+  DBTYPE: MySQL
+  DBNAME: spark
+  DBUSER: root # root porque o manage.py test cria e apaga o banco test_spark
+  DBPASSWORD: root_ci
+  DBHOST: 127.0.0.1
+  DBPORT: "3306"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4.3
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: spark
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.5"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - name: Migrations em dia com os models
+        run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py migrate --noinput
+      - run: python manage.py test
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4.3
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: spark
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build da imagem (sem publicar)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true # deixa a imagem disponível para o docker run abaixo
+          tags: spark:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test (sobe o contêiner com MySQL)
+        run: |
+          docker run -d --name spark --network host \
+            -e SECRET_KEY -e ENVIRONMENT \
+            -e DBTYPE -e DBNAME -e DBUSER -e DBPASSWORD -e DBHOST -e DBPORT \
+            spark:ci
+          for i in $(seq 1 30); do
+            curl -fsS -o /dev/null http://localhost:8000/admin/login/ && break
+            [ "$i" = 30 ] && { echo "::error::O spark não respondeu /admin/login/ em 60 s"; exit 1; }
+            sleep 2
+          done
+          # A página inicial só renderiza um template; 200 prova que o app subiu depois das migrations.
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/)
+          [ "$code" = 200 ] || { echo "::error::/ respondeu $code, esperado 200"; exit 1; }
+      - name: Logs do contêiner
+        if: always()
+        run: docker logs spark || true
