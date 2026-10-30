@@ -1,4 +1,4 @@
-# spark (morea-ds-web)
+# SPARCC (morea-ds-web)
 
 Sistema do MOREA para monitorar o consumo de água, energia e gás: os dispositivos enviam os dados por API, o sistema processa estatísticas e mostra dashboards e gráficos.
 
@@ -52,7 +52,7 @@ O que o `docker compose up` sobe:
 | `cron` | a mesma do `web` | nenhuma (jobs periódicos, ver abaixo) |
 | `db` | `mysql:8.4.3` | 3307 (para não colidir com um MySQL local na 3306) |
 
-As variáveis de desenvolvimento (senhas `spark`/`spark`, `ENVIRONMENT=PROD` etc.) estão no próprio `docker-compose.yml`. Servem só para a sua máquina. O `.env.example` é o modelo para quem rodar sem Docker.
+As variáveis de desenvolvimento (senhas `sparcc`/`sparcc`, `ENVIRONMENT=PROD` etc.) estão no próprio `docker-compose.yml`. Servem só para a sua máquina. O `.env.example` é o modelo para quem rodar sem Docker.
 
 O contêiner `cron` roda os jobs do `CRONJOBS` (`morea_ds/settings.py`) pelo `scripts/cron.sh`: `app.data_processing.run` a cada hora cheia e `app.graphs.generateAllMotes24hRaw` às 3h (UTC). O `settings.py` aponta o job horário para `hourlyDataProcessing`, que não existe no código; por isso o `cron.sh` chama `run`.
 
@@ -74,7 +74,7 @@ docker compose exec web python manage.py shell
 
 Quando precisa de `--build` de novo: mudou o `requirements.txt`, o `Dockerfile` ou os `scripts/`. Mudança só em código Python, template ou arquivo estático também exige rebuild, porque o código é copiado para dentro da imagem.
 
-Para acessar o banco de fora (DBeaver, MySQL Workbench): host `127.0.0.1`, porta `3307`, banco `spark`, usuário `spark`, senha `spark`.
+Para acessar o banco de fora (DBeaver, MySQL Workbench): host `127.0.0.1`, porta `3307`, banco `sparcc`, usuário `sparcc`, senha `sparcc`.
 
 ## 5. Testes e CI
 
@@ -163,18 +163,18 @@ As migrations e o `collectstatic` rodam sozinhos a cada subida (`scripts/start.s
 O jeito mais simples é usar o `docker-compose.yml` deste repositório trocando `build: .` por `image: ghcr.io/morea-ifs/morea-ds-web:1.3.0` e as variáveis pelas de produção. Com `docker run`, as peças são estas:
 
 ```bash
-docker network create spark
-docker run -d --name spark-web --network spark \
+docker network create sparcc
+docker run -d --name sparcc-web --network sparcc \
   -e SECRET_KEY=... -e ENVIRONMENT=PROD \
-  -e DBTYPE=MySQL -e DBNAME=spark -e DBUSER=... -e DBPASSWORD=... -e DBHOST=... -e DBPORT=3306 \
-  -v spark-static:/var/www/html/Morea/static -v spark-media:/var/www/html/Morea/media \
+  -e DBTYPE=MySQL -e DBNAME=sparcc -e DBUSER=... -e DBPASSWORD=... -e DBHOST=... -e DBPORT=3306 \
+  -v sparcc-static:/var/www/html/Morea/static -v sparcc-media:/var/www/html/Morea/media \
   ghcr.io/morea-ifs/morea-ds-web:1.3.0
-docker run -d --name spark-cron --network spark \
+docker run -d --name sparcc-cron --network sparcc \
   -e SECRET_KEY=... -e ENVIRONMENT=PROD \
-  -e DBTYPE=MySQL -e DBNAME=spark -e DBUSER=... -e DBPASSWORD=... -e DBHOST=... -e DBPORT=3306 \
-  -v spark-media:/var/www/html/Morea/media \
+  -e DBTYPE=MySQL -e DBNAME=sparcc -e DBUSER=... -e DBPASSWORD=... -e DBHOST=... -e DBPORT=3306 \
+  -v sparcc-media:/var/www/html/Morea/media \
   ghcr.io/morea-ifs/morea-ds-web:1.3.0 sh scripts/cron.sh
-# nginx com o docker/nginx.conf (o proxy_pass aponta para http://web:8000; ajuste para spark-web)
+# nginx com o docker/nginx.conf (o proxy_pass aponta para http://web:8000; ajuste para sparcc-web)
 ```
 
 Para atualizar: troque a versão da imagem e reinicie. Para voltar atrás: aponte para a versão anterior, que continua no GHCR.
@@ -184,7 +184,7 @@ Para atualizar: troque a versão da imagem e reinicie. Para voltar atrás: apont
 O job `deploy` do `release.yml` atualiza a EC2 a cada tag de versão final. Ele usa o **SSM** da AWS (não abre SSH) e entra na AWS por **OIDC** (nenhuma chave da AWS fica guardada no GitHub). Na EC2, ele roda:
 
 ```bash
-cd /opt/spark && export SPARK_TAG=<versão> && docker compose pull && docker compose up -d
+cd /opt/sparcc && export SPARCC_TAG=<versão> && docker compose pull && docker compose up -d
 ```
 
 e espera o resultado: se o comando falhar na EC2, o job fica vermelho.
@@ -193,10 +193,10 @@ O job só roda quando estas **variáveis** existem no repositório, em *Settings
 
 | Variável | Valor | Obrigatória |
 |---|---|---|
-| `AWS_DEPLOY_ROLE` | ARN da IAM role que o GitHub assume (ex.: `arn:aws:iam::123456789012:role/spark-deploy`) | sim |
+| `AWS_DEPLOY_ROLE` | ARN da IAM role que o GitHub assume (ex.: `arn:aws:iam::123456789012:role/sparcc-deploy`) | sim |
 | `EC2_INSTANCE_ID` | id da instância (ex.: `i-0abc123...`) | sim |
 | `AWS_REGION` | região da instância | não (padrão `us-east-1`) |
-| `DEPLOY_PATH` | pasta do compose na EC2 | não (padrão `/opt/spark`) |
+| `DEPLOY_PATH` | pasta do compose na EC2 | não (padrão `/opt/sparcc`) |
 
 Sem `AWS_DEPLOY_ROLE` ou `EC2_INSTANCE_ID`, o job `deploy` é pulado e o release termina verde.
 
@@ -205,15 +205,15 @@ O que precisa existir do lado da AWS (feito por quem cuida da conta):
 1. **Provedor OIDC do GitHub** no IAM (`token.actions.githubusercontent.com`, audiência `sts.amazonaws.com`).
 2. **IAM role** com relação de confiança nesse provedor, limitada ao repositório e às tags (`repo:Morea-IFS/morea-ds-web:ref:refs/tags/v*`), e permissão `ssm:SendCommand` (documento `AWS-RunShellScript` e a instância) e `ssm:GetCommandInvocation`.
 3. **EC2** com Docker + plugin Compose e o **SSM Agent** ativo, com um perfil de instância que tenha a política `AmazonSSMManagedInstanceCore`.
-4. Em `/opt/spark` na EC2: o `docker-compose.yml` deste repositório com duas mudanças nos serviços `web` e `cron` (trocar `build: .` pela imagem) e as variáveis de produção (seção 7.2) no lugar das de desenvolvimento, mais o `docker/nginx.conf`:
+4. Em `/opt/sparcc` na EC2: o `docker-compose.yml` deste repositório com duas mudanças nos serviços `web` e `cron` (trocar `build: .` pela imagem) e as variáveis de produção (seção 7.2) no lugar das de desenvolvimento, mais o `docker/nginx.conf`:
 
    ```yaml
-       image: ghcr.io/morea-ifs/morea-ds-web:${SPARK_TAG:-latest}
+       image: ghcr.io/morea-ifs/morea-ds-web:${SPARCC_TAG:-latest}
    ```
 
 5. Se o pacote do GHCR estiver privado: `docker login ghcr.io` na EC2 com um token de escopo `read:packages`.
 
-Para voltar atrás: na EC2, `cd /opt/spark && export SPARK_TAG=<versão anterior> && docker compose up -d`.
+Para voltar atrás: na EC2, `cd /opt/sparcc && export SPARCC_TAG=<versão anterior> && docker compose up -d`.
 
 ## 8. Estrutura do projeto
 
