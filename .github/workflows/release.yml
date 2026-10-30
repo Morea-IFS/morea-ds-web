@@ -21,7 +21,7 @@ env:
   SECRET_KEY: ci-inseguro
   ENVIRONMENT: PROD
   DBTYPE: MySQL
-  DBNAME: spark
+  DBNAME: sparcc
   DBUSER: root
   DBPASSWORD: root_ci
   DBHOST: 127.0.0.1
@@ -37,7 +37,7 @@ jobs:
         image: mysql:8.4.3
         env:
           MYSQL_ROOT_PASSWORD: root_ci
-          MYSQL_DATABASE: spark
+          MYSQL_DATABASE: sparcc
         ports: ["3306:3306"]
         options: >-
           --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
@@ -112,7 +112,7 @@ jobs:
     env:
       VERSION: ${{ needs.publish.outputs.version }}
       INSTANCE: ${{ vars.EC2_INSTANCE_ID }}
-      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/spark' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/sparcc' }}
     steps:
       - name: Credenciais da AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -121,11 +121,11 @@ jobs:
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
       - name: Atualizar a EC2
         run: |
-          # O docker-compose da EC2 usa image: ghcr.io/morea-ifs/morea-ds-web:${SPARK_TAG:-latest}
-          cmd="cd $DEPLOY_PATH && export SPARK_TAG=$VERSION && docker compose pull && docker compose up -d"
+          # O docker-compose da EC2 usa image: ghcr.io/morea-ifs/morea-ds-web:${SPARCC_TAG:-latest}
+          cmd="cd $DEPLOY_PATH && export SPARCC_TAG=$VERSION && docker compose pull && docker compose up -d"
           id=$(aws ssm send-command --instance-ids "$INSTANCE" \
             --document-name AWS-RunShellScript \
-            --comment "deploy spark $VERSION" \
+            --comment "deploy sparcc $VERSION" \
             --parameters "commands=[\"$cmd\"]" \
             --query Command.CommandId --output text)
           echo "Comando SSM: $id"

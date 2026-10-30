@@ -2,16 +2,16 @@ services:
   db:
     image: mysql:8.4.3
     environment:
-      MYSQL_DATABASE: spark
-      MYSQL_USER: spark
-      MYSQL_PASSWORD: spark
+      MYSQL_DATABASE: sparcc
+      MYSQL_USER: sparcc
+      MYSQL_PASSWORD: sparcc
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uspark", "-pspark"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-usparcc", "-psparcc"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -22,9 +22,9 @@ services:
       SECRET_KEY: ${SECRET_KEY:-dev-local-inseguro}
       ENVIRONMENT: PROD
       DBTYPE: MySQL
-      DBNAME: spark
-      DBUSER: spark
-      DBPASSWORD: spark
+      DBNAME: sparcc
+      DBUSER: sparcc
+      DBPASSWORD: sparcc
       DBHOST: db
       DBPORT: "3306"
     volumes:
