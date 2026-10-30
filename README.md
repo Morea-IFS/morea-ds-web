@@ -1,4 +1,4 @@
-# spark (morea-ds-web)
+# morea-ds-web
 
 Sistema do MOREA para monitorar o consumo de água, energia e gás: os dispositivos enviam os dados por API, o sistema processa estatísticas e mostra dashboards e gráficos.
 
